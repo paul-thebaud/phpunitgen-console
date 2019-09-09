@@ -1,0 +1,50 @@
+{
+    "name": "phpunitgen/console",
+    "description": "The PhpUnitGen command line features for tests generation.",
+    "license": "MIT",
+    "type": "library",
+    "keywords": [
+        "test",
+        "generation",
+        "generator"
+    ],
+    "support": {
+        "issues": "https://github.com/paul-thebaud/phpunitgen-core/issues",
+        "source": "https://github.com/paul-thebaud/phpunitgen-console"
+    },
+    "authors": [
+        {
+            "name": "Paul Thébaud",
+            "email": "paul.thebaud29@gmail.com"
+        },
+        {
+            "name": "Killian Hascoët",
+            "email": "killianh@live.fr"
+        }
+    ],
+    "require": {
+        "php": "~7.2",
+        "ocramius/package-versions": "^1.5",
+        "phpunitgen/core": "^1.0-alpha"
+    },
+    "require-dev": {
+        "brianium/paratest": "^3.0",
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "PhpUnitGen\\Console\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\PhpUnitGen\\Console\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

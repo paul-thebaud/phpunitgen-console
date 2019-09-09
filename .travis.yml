@@ -1,0 +1,30 @@
+language: php
+
+dist: trusty
+
+git:
+  depth: false
+
+addons:
+  sonarcloud:
+    organization: "paul-thebaud-github"
+    token:
+      secure: "$SONAR_TOKEN"
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+php:
+  - 7.2
+  - 7.3
+
+before_script:
+  - phpenv config-rm xdebug.ini
+  - composer self-update
+  - composer global require hirak/prestissimo
+  - composer update --no-interaction --no-suggest --no-progress
+
+script:
+  - phpdbg -qrr ./vendor/bin/phpunit -c phpunit.xml.dist --coverage-clover=coverage-report.clover --log-junit=test-report.xml
+  - sonar-scanner

@@ -1,0 +1,14 @@
+# System.
+.DS_Store
+
+# IDE.
+/\.idea/
+
+# Dependencies.
+/composer\.lock
+/vendor/
+
+# Cache and coverage.
+/\.coverage/
+/\.phpunit\.result\.cache
+\.scannerwork/
