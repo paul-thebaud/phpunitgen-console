@@ -22,5 +22,5 @@ if (! $loaded) {
     );
 }
 
-$application = new ConsoleApplication();
+$application = ConsoleApplication::make();
 $application->run();

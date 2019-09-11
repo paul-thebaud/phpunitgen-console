@@ -6,6 +6,8 @@ namespace PhpUnitGen\Console;
 
 use PackageVersions\Versions;
 use PhpUnitGen\Console\Commands\RunCommand;
+use PhpUnitGen\Console\Container\ContainerFactory;
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application as SymfonyApplication;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,23 +22,35 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ConsoleApplication extends SymfonyApplication
 {
     /**
-     * The console application version.
+     * @var ContainerInterface
      */
-    public const VERSION = '1.0.0-alpha';
+    protected $container;
 
     /**
      * ConsoleApplication constructor.
+     *
+     * @param ContainerInterface $container
      */
-    public function __construct()
+    public function __construct(ContainerInterface $container)
     {
         parent::__construct(
             'PhpUnitGen',
-            self::VERSION." (core version: {$this->getCoreVersion()})"
+            $this->getConsoleVersion()." (core version: {$this->getCoreVersion()})"
         );
 
-        $this->add(new RunCommand());
+        $this->add($container->get(RunCommand::class));
 
         $this->setDefaultCommand('run', true);
+    }
+
+    /**
+     * Create a console application.
+     *
+     * @return ConsoleApplication
+     */
+    public static function make(): self
+    {
+        return new static(ContainerFactory::make());
     }
 
     /**
@@ -52,13 +66,33 @@ class ConsoleApplication extends SymfonyApplication
     }
 
     /**
-     * Get the PhpUnitGen Core code version.
+     * Get the PhpUnitGen Console version.
+     *
+     * @return string
+     */
+    protected function getConsoleVersion(): string
+    {
+        return $this->getPackagistVersion('phpunitgen/console');
+    }
+
+    /**
+     * Get the PhpUnitGen Core version.
      *
      * @return string
      */
     protected function getCoreVersion(): string
     {
-        $version = Versions::getVersion('phpunitgen/core');
+        return $this->getPackagistVersion('phpunitgen/core');
+    }
+
+    /**
+     * Get the given package version.
+     *
+     * @return string
+     */
+    protected function getPackagistVersion(string $package): string
+    {
+        $version = Versions::getVersion($package);
 
         return substr($version, 0, strrpos($version, '@'));
     }

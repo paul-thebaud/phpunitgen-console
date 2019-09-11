@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Commands;
 
+use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
+use PhpUnitGen\Core\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,6 +21,23 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class RunCommand extends Command
 {
+    /**
+     * @var ConfigResolver
+     */
+    protected $configResolver;
+
+    /**
+     * RunCommand constructor.
+     *
+     * @param ConfigResolver $configResolver
+     */
+    public function __construct(ConfigResolver $configResolver)
+    {
+        parent::__construct();
+
+        $this->configResolver = $configResolver;
+    }
+
     /**
      * {@inheritdoc}
      */
@@ -36,15 +55,22 @@ class RunCommand extends Command
                 InputOption::VALUE_OPTIONAL,
                 'Define a custom path to the PhpUnitGen config'
             )
+            ->addOption(
+                'overwrite',
+                'O',
+                InputOption::VALUE_NONE,
+                'Overwrite existing files with PhpUnitGen generated files'
+            )
             ->addArgument(
                 'source',
-                InputArgument::OPTIONAL,
-                'The source file/dir path to generate tests for (default to "src" or "app")'
+                InputArgument::REQUIRED,
+                'The source file/dir path to generate tests for',
             )
             ->addArgument(
                 'target',
                 InputArgument::OPTIONAL,
-                'The target file/dir path to generate tests to (default to "tests")'
+                'The target file/dir path to generate tests',
+                'tests'
             );
     }
 
@@ -53,6 +79,10 @@ class RunCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('TODO');
+        $config = $this->configResolver->resolve($input->getOption('config'));
+
+        Application::make($config->toArray());
+
+        $output->writeln('DONE!');
     }
 }
