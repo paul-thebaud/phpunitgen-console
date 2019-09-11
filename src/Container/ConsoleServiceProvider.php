@@ -10,6 +10,9 @@ use League\Flysystem\Adapter\Local;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use PhpUnitGen\Console\Config\ConfigResolver;
+use PhpUnitGen\Console\Config\ResolveStrategies\JsonResolveStrategy;
+use PhpUnitGen\Console\Config\ResolveStrategies\PhpResolveStrategy;
+use PhpUnitGen\Console\Config\ResolveStrategies\YamlResolveStrategy;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver as ConfigResolverContract;
 
 /**
@@ -39,6 +42,9 @@ class ConsoleServiceProvider extends AbstractServiceProvider
         $this->leagueContainer->add(FilesystemInterface::class, Filesystem::class)
             ->addArgument(new Local(getcwd()));
         $this->leagueContainer->add(ConfigResolverContract::class, ConfigResolver::class)
-            ->addArgument(FilesystemInterface::class);
+            ->addArgument(FilesystemInterface::class)
+            ->addArgument(PhpResolveStrategy::class)
+            ->addArgument(YamlResolveStrategy::class)
+            ->addArgument(JsonResolveStrategy::class);
     }
 }
