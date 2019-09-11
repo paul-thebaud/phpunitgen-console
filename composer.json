@@ -22,10 +22,13 @@
             "email": "killianh@live.fr"
         }
     ],
+    "bin": [
+        "phpunitgen"
+    ],
     "require": {
         "php": "~7.2",
         "ocramius/package-versions": "^1.5",
-        "phpunitgen/core": "^1.0-alpha"
+        "phpunitgen/core": "^1.0@alpha"
     },
     "require-dev": {
         "brianium/paratest": "^3.0",
