@@ -2,21 +2,22 @@
 
 declare(strict_types=1);
 
-namespace PhpUnitGen\Console\Commands;
+namespace PhpUnitGen\Console\Adapters\Laravel;
 
+use Illuminate\Console\Command;
+use PhpUnitGen\Console\Commands\RunsPhpUnitGen;
 use PhpUnitGen\Console\Contracts\Execution\Runner;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class RunCommand.
+ * Class PhpUnitGenCommand.
  *
  * @author  Paul Thébaud <paul.thebaud29@gmail.com>
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-class RunCommand extends Command
+class PhpUnitGenCommand extends Command
 {
     use RunsPhpUnitGen;
 
@@ -40,7 +41,7 @@ class RunCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->configureCommand();
     }
@@ -48,8 +49,8 @@ class RunCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        return $this->executeCommand($this->runner, $input, $output);
+        return $this->runner->run($input, $output);
     }
 }

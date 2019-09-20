@@ -1,12 +1,14 @@
 #!/usr/bin/env php
 <?php
 
-namespace PhpUnitGen;
+namespace PhpUnitGen\Console;
 
-use PhpUnitGen\Console\ConsoleApplication;
+use PhpUnitGen\Console\Config\ConfigResolver;
+use PhpUnitGen\Console\Executors\Executor;
+use PhpUnitGen\Console\Files\LeagueFilesystem;
 
 $loaded = false;
-foreach ([__DIR__.'/../../autoload.php', __DIR__.'/vendor/autoload.php'] as $file) {
+foreach ([__DIR__.'/../../autoload.php', __DIR__.'/vendor/autoload.php', __DIR__.'/../vendor/autoload.php'] as $file) {
     if (file_exists($file)) {
         require $file;
         $loaded = true;
@@ -22,5 +24,4 @@ if (! $loaded) {
     );
 }
 
-$application = ConsoleApplication::make();
-$application->run();
+ConsoleApplication::make()->run();

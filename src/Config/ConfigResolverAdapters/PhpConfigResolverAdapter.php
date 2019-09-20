@@ -2,23 +2,23 @@
 
 declare(strict_types=1);
 
-namespace PhpUnitGen\Console\Config\ResolveStrategies;
+namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
-use PhpUnitGen\Core\Config\Config;
+use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
 
 /**
- * Class PhpResolveStrategy.
+ * Class PhpConfigResolverAdapter.
  *
  * @author  Paul Thébaud <paul.thebaud29@gmail.com>
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-class PhpResolveStrategy extends AbstractResolveStrategy
+class PhpConfigResolverAdapter extends AbstractConfigResolverStrategy
 {
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $content): Config
+    public function resolve(string $content): ConsoleConfig
     {
         $tempFile = tmpfile();
         fwrite($tempFile, $content);

@@ -6,9 +6,9 @@ namespace PhpUnitGen\Console;
 
 use PackageVersions\Versions;
 use PhpUnitGen\Console\Commands\RunCommand;
-use PhpUnitGen\Console\Container\ContainerFactory;
+use PhpUnitGen\Console\Container\ConsoleContainerFactory;
 use Psr\Container\ContainerInterface;
-use Symfony\Component\Console\Application as SymfonyApplication;
+use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-class ConsoleApplication extends SymfonyApplication
+class ConsoleApplication extends Application
 {
     /**
      * @var ContainerInterface
@@ -50,7 +50,7 @@ class ConsoleApplication extends SymfonyApplication
      */
     public static function make(): self
     {
-        return new static(ContainerFactory::make());
+        return new static(ConsoleContainerFactory::make());
     }
 
     /**
@@ -87,6 +87,8 @@ class ConsoleApplication extends SymfonyApplication
 
     /**
      * Get the given package version.
+     *
+     * @param string $package
      *
      * @return string
      */

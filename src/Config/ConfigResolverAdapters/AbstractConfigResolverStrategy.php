@@ -2,29 +2,31 @@
 
 declare(strict_types=1);
 
-namespace PhpUnitGen\Console\Config\ResolveStrategies;
+namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
-use PhpUnitGen\Console\Contracts\Config\ResolveStrategy;
-use PhpUnitGen\Core\Config\Config;
+use PhpUnitGen\Console\Config\ConsoleConfig;
+use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 
 /**
- * Class AbstractResolveStrategy.
+ * Class AbstractConfigResolverStrategy.
  *
  * @author  Paul Thébaud <paul.thebaud29@gmail.com>
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-abstract class AbstractResolveStrategy implements ResolveStrategy
+abstract class AbstractConfigResolverStrategy implements ConfigResolverAdapter
 {
     /**
      * Check if config is an array and make the instance.
      *
      * @param mixed $config
      *
-     * @return Config
+     * @return ConsoleConfig
+     *
+     * @throws InvalidArgumentException
      */
-    protected function makeConfig($config): Config
+    protected function makeConfig($config): ConsoleConfig
     {
         if (! is_array($config)) {
             throw new InvalidArgumentException(
@@ -32,6 +34,6 @@ abstract class AbstractResolveStrategy implements ResolveStrategy
             );
         }
 
-        return Config::make($config);
+        return ConsoleConfig::make($config);
     }
 }

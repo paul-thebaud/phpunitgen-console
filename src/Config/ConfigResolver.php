@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Config;
 
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\FilesystemInterface;
-use PhpUnitGen\Console\Config\ResolveStrategies\JsonResolveStrategy;
-use PhpUnitGen\Console\Config\ResolveStrategies\PhpResolveStrategy;
-use PhpUnitGen\Console\Config\ResolveStrategies\YamlResolveStrategy;
+use PhpUnitGen\Console\Config\ConfigResolverAdapters\JsonConfigResolverAdapter;
+use PhpUnitGen\Console\Config\ConfigResolverAdapters\PhpConfigResolverAdapter;
+use PhpUnitGen\Console\Config\ConfigResolverAdapters\YamlConfigResolverAdapter;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver as ConfigResolverContract;
-use PhpUnitGen\Console\Contracts\Config\ResolveStrategy;
-use PhpUnitGen\Core\Config\Config;
-use PhpUnitGen\Core\Contracts\Config\Config as ConfigContract;
+use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
+use PhpUnitGen\Console\Contracts\Config\ConsoleConfig as ConsoleConfigContract;
+use PhpUnitGen\Console\Contracts\Files\Filesystem;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 use PhpUnitGen\Core\Helpers\Str;
 
@@ -26,79 +24,68 @@ use PhpUnitGen\Core\Helpers\Str;
 class ConfigResolver implements ConfigResolverContract
 {
     /**
-     * @var FilesystemInterface
+     * @var Filesystem
      */
     protected $filesystem;
 
     /**
-     * @var PhpResolveStrategy
+     * @var ConfigResolverAdapter[]
      */
-    protected $phpResolveStrategy;
-
-    /**
-     * @var YamlResolveStrategy
-     */
-    protected $yamlResolveStrategy;
-
-    /**
-     * @var JsonResolveStrategy
-     */
-    protected $jsonResolveStrategy;
+    protected $configResolverAdapters;
 
     /**
      * ConfigResolver constructor.
      *
-     * @param FilesystemInterface $filesystem
-     * @param PhpResolveStrategy  $phpResolveStrategy
-     * @param YamlResolveStrategy $yamlResolveStrategy
-     * @param JsonResolveStrategy $jsonResolveStrategy
+     * @param Filesystem                $filesystem
+     * @param PhpConfigResolverAdapter  $phpConfigResolverAdapter
+     * @param YamlConfigResolverAdapter $yamlConfigResolverAdapter
+     * @param JsonConfigResolverAdapter $jsonConfigResolverAdapter
      */
     public function __construct(
-        FilesystemInterface $filesystem,
-        PhpResolveStrategy $phpResolveStrategy,
-        YamlResolveStrategy $yamlResolveStrategy,
-        JsonResolveStrategy $jsonResolveStrategy
+        Filesystem $filesystem,
+        PhpConfigResolverAdapter $phpConfigResolverAdapter,
+        YamlConfigResolverAdapter $yamlConfigResolverAdapter,
+        JsonConfigResolverAdapter $jsonConfigResolverAdapter
     ) {
         $this->filesystem = $filesystem;
-        $this->phpResolveStrategy = $phpResolveStrategy;
-        $this->yamlResolveStrategy = $yamlResolveStrategy;
-        $this->jsonResolveStrategy = $jsonResolveStrategy;
+
+        $this->setConfigResolverAdapters([
+            'php'  => $phpConfigResolverAdapter,
+            'yml'  => $yamlConfigResolverAdapter,
+            'json' => $jsonConfigResolverAdapter,
+        ]);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function resolve(?string $path = null): ConfigContract
+    public function resolve(?string $path): ConsoleConfigContract
     {
-        if ($path == null) {
+        if ($path === null) {
             return $this->resolveDefaultConfig();
         }
 
-        try {
-            return $this->resolveConfigFromPath($path);
-        } catch (FileNotFoundException $exception) {
-            throw new InvalidArgumentException(
-                'given config file does not exists or is not readable'
-            );
-        }
+        return $this->resolveConfigFromPath($path);
     }
 
     /**
      * Resolve the default config from current working directory.
      *
-     * @return ConfigContract
+     * @return ConsoleConfig
+     *
+     * @throws InvalidArgumentException
      */
-    protected function resolveDefaultConfig(): ConfigContract
+    protected function resolveDefaultConfig(): ConsoleConfig
     {
         foreach ($this->getDefaultConfigPaths() as $path) {
-            try {
-                return $this->resolveConfigFromPath($path);
-            } catch (FileNotFoundException $exception) {
+            if (! $this->filesystem->has($path)) {
                 continue;
             }
+
+            return $this->resolveConfigFromPath($path);
         }
 
-        return Config::make();
+        return ConsoleConfig::make();
     }
 
     /**
@@ -106,15 +93,13 @@ class ConfigResolver implements ConfigResolverContract
      *
      * @param string $path
      *
-     * @return ConfigContract
+     * @return ConsoleConfig
      *
-     * @throws FileNotFoundException
      * @throws InvalidArgumentException
      */
-    protected function resolveConfigFromPath(string $path): ConfigContract
+    protected function resolveConfigFromPath(string $path): ConsoleConfigContract
     {
         $resolveStrategy = $this->getResolveStrategy($path);
-
         $content = $this->filesystem->read($path);
 
         return $resolveStrategy->resolve($content);
@@ -125,23 +110,27 @@ class ConfigResolver implements ConfigResolverContract
      *
      * @param string $path
      *
-     * @return ResolveStrategy
+     * @return ConfigResolverAdapter
      *
      * @throws InvalidArgumentException
      */
-    protected function getResolveStrategy(string $path): ResolveStrategy
+    protected function getResolveStrategy(string $path): ConfigResolverAdapter
     {
-        $extension = Str::replaceLast('.dist', '', $path);
-        $extension = Str::afterLast('.', $extension);
+        $pathLength = mb_strlen($path);
+        if (mb_strrpos($path, '.dist') === ($pathLength - 5)) {
+            $path = mb_substr($path, -5);
+        }
 
+        $extension = Str::afterLast('.', $path);
         $acceptedExtensions = $this->getAcceptedExtensions();
+
         if (! in_array($extension, $acceptedExtensions)) {
             throw new InvalidArgumentException(
                 'config file must have one of the following extensions: '.implode(', ', $acceptedExtensions)
             );
         }
 
-        return $this->getResolveStrategies()[$extension];
+        return $this->getConfigResolverAdapters()[$extension];
     }
 
     /**
@@ -152,7 +141,6 @@ class ConfigResolver implements ConfigResolverContract
     protected function getDefaultConfigPaths(): array
     {
         $paths = [];
-
         foreach ($this->getAcceptedExtensions() as $extension) {
             $path = 'phpunitgen.'.$extension;
             $paths[] = $path;
@@ -169,20 +157,22 @@ class ConfigResolver implements ConfigResolverContract
      */
     protected function getAcceptedExtensions(): array
     {
-        return array_keys($this->getResolveStrategies());
+        return array_keys($this->getConfigResolverAdapters());
     }
 
     /**
-     * Get mapping between file extension and corresponding resolve strategy.
-     *
-     * @return ResolveStrategy[]
+     * @return ConfigResolverAdapter[]
      */
-    protected function getResolveStrategies(): array
+    public function getConfigResolverAdapters(): array
     {
-        return [
-            'php'  => $this->phpResolveStrategy,
-            'yml'  => $this->yamlResolveStrategy,
-            'json' => $this->jsonResolveStrategy,
-        ];
+        return $this->configResolverAdapters;
+    }
+
+    /**
+     * @param ConfigResolverAdapter[] $configResolverAdapters
+     */
+    public function setConfigResolverAdapters(array $configResolverAdapters): void
+    {
+        $this->configResolverAdapters = $configResolverAdapters;
     }
 }

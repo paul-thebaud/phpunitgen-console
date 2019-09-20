@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Contracts\Config;
 
-use PhpUnitGen\Core\Contracts\Config\Config;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 
 /**
@@ -17,15 +16,13 @@ use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 interface ConfigResolver
 {
     /**
-     * Resolve the configuration from its path. Throw an exception if the given
-     * config path does not exists or is invalid. Return default configuration
-     * if path is null or empty and no config can be found in current path.
+     * Try to resolve the given config from its path, or resolve defaults.
      *
      * @param string|null $path
      *
-     * @return Config
+     * @return ConsoleConfig
      *
      * @throws InvalidArgumentException
      */
-    public function resolve(?string $path = null): Config;
+    public function resolve(?string $path): ConsoleConfig;
 }
