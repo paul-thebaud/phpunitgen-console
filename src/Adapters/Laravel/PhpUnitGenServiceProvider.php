@@ -17,6 +17,16 @@ use PhpUnitGen\Console\Container\ConsoleContainerFactory;
 class PhpUnitGenServiceProvider extends ServiceProvider
 {
     /**
+     * Add the binding for command.
+     */
+    public function register(): void
+    {
+        $this->app->bind(PhpUnitGenCommand::class, function () {
+            return ConsoleContainerFactory::make()->get(PhpUnitGenCommand::class);
+        });
+    }
+
+    /**
      * Add the publishable configuration and register the command.
      */
     public function boot(): void
@@ -26,7 +36,7 @@ class PhpUnitGenServiceProvider extends ServiceProvider
         ], 'config');
 
         $this->commands([
-            ConsoleContainerFactory::make()->get(PhpUnitGenCommand::class),
+            PhpUnitGenCommand::class,
         ]);
     }
 }
