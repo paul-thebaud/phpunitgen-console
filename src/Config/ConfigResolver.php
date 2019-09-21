@@ -82,7 +82,6 @@ class ConfigResolver implements ConfigResolverContract
 
         return ConsoleConfig::make($config)
             ->setPath($path);
-
     }
 
     /**

@@ -53,7 +53,7 @@ class LeagueFilesystem implements FilesystemContract
     {
         $localAdapter = new Local('/', LOCK_EX, Local::SKIP_LINKS);
 
-        return new LeagueFilesystem(new Filesystem($localAdapter), getcwd());
+        return new static(new Filesystem($localAdapter), getcwd());
     }
 
     /**
