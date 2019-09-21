@@ -7,6 +7,7 @@ namespace PhpUnitGen\Console;
 use PackageVersions\Versions;
 use PhpUnitGen\Console\Commands\RunCommand;
 use PhpUnitGen\Console\Container\ConsoleContainerFactory;
+use PhpUnitGen\Core\Helpers\Str;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
@@ -35,7 +36,7 @@ class ConsoleApplication extends Application
     {
         parent::__construct(
             'PhpUnitGen',
-            $this->getConsoleVersion()." (core version: {$this->getCoreVersion()})"
+            "{$this->getConsoleVersion()} (core version: {$this->getCoreVersion()})"
         );
 
         $this->add($container->get(RunCommand::class));
@@ -96,6 +97,6 @@ class ConsoleApplication extends Application
     {
         $version = Versions::getVersion($package);
 
-        return substr($version, 0, strrpos($version, '@'));
+        return Str::beforeLast('@', $version);
     }
 }
