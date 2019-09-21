@@ -254,11 +254,12 @@ class ProcessHandler implements ProcessHandlerContract
 
         $alreadyOnLineCount = $this->processedSourcesCount % self::SOURCES_PER_LINE;
         $isFinished = $this->processedSourcesCount === $this->sourcesCount;
-        if ($alreadyOnLineCount === 0 || $isFinished) {
-            if ($isFinished) {
-                $this->write(str_repeat(' ', self::SOURCES_PER_LINE - $alreadyOnLineCount));
-            }
 
+        if ($alreadyOnLineCount !== 0 && $isFinished) {
+            $this->write(str_repeat(' ', self::SOURCES_PER_LINE - $alreadyOnLineCount));
+        }
+
+        if ($alreadyOnLineCount === 0 || $isFinished) {
             $this->writeln("    ({$this->processedSourcesCount} / {$this->sourcesCount})");
         }
 
