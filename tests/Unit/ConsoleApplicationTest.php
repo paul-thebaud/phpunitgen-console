@@ -57,7 +57,6 @@ class ConsoleApplicationTest extends TestCase
         $application->setAutoExit(false);
 
         $this->assertSame(0, $application->run($input, $output));
-
     }
 
     protected function getVersions(): array
