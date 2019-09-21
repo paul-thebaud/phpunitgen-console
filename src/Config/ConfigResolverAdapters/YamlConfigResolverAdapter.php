@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
-use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
+use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -14,13 +14,13 @@ use Symfony\Component\Yaml\Yaml;
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-class YamlConfigResolverAdapter extends AbstractConfigResolverStrategy
+class YamlConfigResolverAdapter implements ConfigResolverAdapter
 {
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $content): ConsoleConfig
+    public function resolve(string $content): array
     {
-        return $this->makeConfig(Yaml::parse($content));
+        return Yaml::parse($content);
     }
 }

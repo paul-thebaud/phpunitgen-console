@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Execution;
 
+use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
 use PhpUnitGen\Console\Contracts\Execution\ProcessHandler as ProcessHandlerContract;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -94,7 +95,7 @@ class ProcessHandler implements ProcessHandlerContract
     /**
      * {@inheritdoc}
      */
-    public function handleStart(Collection $sources): void
+    public function handleStart(ConsoleConfig $config, Collection $sources): void
     {
         $this->sources = $sources;
         $this->sourcesCount = $sources->count();
@@ -102,6 +103,15 @@ class ProcessHandler implements ProcessHandlerContract
         $this->successes = new Collection();
         $this->warnings = new Collection();
         $this->errors = new Collection();
+
+        $configPath = $config->getPath();
+        $this->write('Starting process using ');
+        if ($configPath) {
+            $this->writeln("config file at '{$configPath}'.");
+        } else {
+            $this->writeln('default config.');
+        }
+        $this->writeln();
     }
 
     /**

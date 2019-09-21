@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
-use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
+use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
 
 /**
  * Class PhpConfigResolverAdapter.
@@ -13,18 +13,18 @@ use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-class PhpConfigResolverAdapter extends AbstractConfigResolverStrategy
+class PhpConfigResolverAdapter implements ConfigResolverAdapter
 {
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $content): ConsoleConfig
+    public function resolve(string $content): array
     {
         $tempFile = tmpfile();
         fwrite($tempFile, $content);
         $config = include stream_get_meta_data($tempFile)['uri'];
         fclose($tempFile);
 
-        return $this->makeConfig($config);
+        return $config;
     }
 }

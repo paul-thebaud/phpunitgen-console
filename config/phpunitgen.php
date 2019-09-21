@@ -34,8 +34,18 @@ return [
      |--------------------------------------------------------------------------
      */
     'includedFiles'       => [
-        '.*\.php$',
+        '\.php$',
     ],
+
+    /*
+     |--------------------------------------------------------------------------
+     | Generation on Make.
+     |
+     | Tells if calling a framework "make" command should call PhpUnitGen to
+     | generate the associated tests. Only works with Laravel for the moment.
+     |--------------------------------------------------------------------------
+     */
+    'generateOnMake'       => true,
 
     /*
      |--------------------------------------------------------------------------

@@ -40,7 +40,7 @@ class ConsoleApplication extends Application
 
         $this->add($container->get(RunCommand::class));
 
-        $this->setDefaultCommand('run', true);
+        $this->setDefaultCommand('phpunitgen', true);
     }
 
     /**

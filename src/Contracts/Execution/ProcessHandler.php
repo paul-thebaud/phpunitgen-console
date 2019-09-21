@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Contracts\Execution;
 
+use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
 use Symfony\Component\Console\Output\OutputInterface;
 use Throwable;
 use Tightenco\Collect\Support\Collection;
@@ -27,9 +28,10 @@ interface ProcessHandler
     /**
      * Handle the process start for the given sources.
      *
-     * @param Collection $sources
+     * @param ConsoleConfig $config
+     * @param Collection    $sources
      */
-    public function handleStart(Collection $sources): void;
+    public function handleStart(ConsoleConfig $config, Collection $sources): void;
 
     /**
      * Handle a successful generation.

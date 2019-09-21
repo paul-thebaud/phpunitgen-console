@@ -16,6 +16,22 @@ use PhpUnitGen\Core\Contracts\Config\Config;
 interface ConsoleConfig extends Config
 {
     /**
+     * Retrieve the config path or null if it is the default config.
+     *
+     * @return string|null
+     */
+    public function getPath(): ?string;
+
+    /**
+     * Define the path from which the config was retrieved. Null means it is a default config.
+     *
+     * @param string|null $path
+     *
+     * @return static
+     */
+    public function setPath(?string $path): self;
+
+    /**
      * Tells if files should be overwritten by PhpUnitGen when already existing. "null" tells
      * that user should be asked for action to do on each file.
      *
@@ -36,4 +52,11 @@ interface ConsoleConfig extends Config
      * @return array
      */
     public function includedFiles(): array;
+
+    /**
+     * Tells if PhpUnitGen should be triggered on file making. Only works with Laravel for the moment.
+     *
+     * @return bool
+     */
+    public function generateOnMake(): bool;
 }

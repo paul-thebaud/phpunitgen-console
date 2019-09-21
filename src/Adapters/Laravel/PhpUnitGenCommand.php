@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PhpUnitGen\Console\Adapters\Laravel;
 
 use Illuminate\Console\Command;
-use PhpUnitGen\Console\Commands\RunsPhpUnitGen;
+use PhpUnitGen\Console\Commands\IsPhpUnitGenCommand;
 use PhpUnitGen\Console\Contracts\Execution\Runner;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class PhpUnitGenCommand extends Command
 {
-    use RunsPhpUnitGen;
+    use IsPhpUnitGenCommand;
 
     /**
      * @var Runner
@@ -44,6 +44,12 @@ class PhpUnitGenCommand extends Command
     protected function configure(): void
     {
         $this->configureCommand();
+
+        // Declare those properties a second time because Laravel is not
+        // using the Symfony getter/setter but custom properties.
+        $this->name = $this->getName();
+        $this->description = $this->getDescription();
+        $this->help = $this->getHelp();
     }
 
     /**

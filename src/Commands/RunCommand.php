@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class RunCommand extends Command
 {
-    use RunsPhpUnitGen;
+    use IsPhpUnitGenCommand;
 
     /**
      * @var Runner

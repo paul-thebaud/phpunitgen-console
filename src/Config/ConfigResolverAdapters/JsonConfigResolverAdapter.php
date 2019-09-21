@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
-use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
+use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
 
 /**
  * Class JsonConfigResolverAdapter.
@@ -13,13 +13,13 @@ use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-class JsonConfigResolverAdapter extends AbstractConfigResolverStrategy
+class JsonConfigResolverAdapter implements ConfigResolverAdapter
 {
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $content): ConsoleConfig
+    public function resolve(string $content): array
     {
-        return $this->makeConfig(json_decode($content, true));
+        return json_decode($content, true);
     }
 }

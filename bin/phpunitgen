@@ -3,10 +3,6 @@
 
 namespace PhpUnitGen\Console;
 
-use PhpUnitGen\Console\Config\ConfigResolver;
-use PhpUnitGen\Console\Executors\Executor;
-use PhpUnitGen\Console\Files\LeagueFilesystem;
-
 $loaded = false;
 foreach ([__DIR__.'/../../autoload.php', __DIR__.'/vendor/autoload.php', __DIR__.'/../vendor/autoload.php'] as $file) {
     if (file_exists($file)) {

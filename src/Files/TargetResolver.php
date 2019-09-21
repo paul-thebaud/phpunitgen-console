@@ -6,6 +6,7 @@ namespace PhpUnitGen\Console\Files;
 
 use PhpUnitGen\Console\Contracts\Files\Filesystem;
 use PhpUnitGen\Console\Contracts\Files\TargetResolver as TargetResolverContract;
+use PhpUnitGen\Core\Contracts\Generators\Factories\ClassFactory;
 use PhpUnitGen\Core\Helpers\Str;
 
 /**
@@ -35,11 +36,13 @@ class TargetResolver implements TargetResolverContract
     /**
      * {@inheritdoc}
      */
-    public function resolve(string $sourcePath, string $targetPath): string
+    public function resolve(ClassFactory $classFactory, string $sourcePath, string $targetPath): string
     {
-        if (strrpos($targetPath, '/') !== strlen($targetPath)) {
-            $targetPath .= '/';
+        if ($targetPath === 'tests' && $classFactory->getTestSubNamespace() !== '') {
+            $targetPath .= '/'.str_replace('\\', '/', $classFactory->getTestSubNamespace());
         }
+
+        $targetPath = preg_replace('/\/+/', '/', $targetPath.'/');
 
         $compiledPath = Str::replaceFirst($this->filesystem->getRoot(), '', $sourcePath);
         $compiledPath = $targetPath.Str::afterFirst('/', $compiledPath);

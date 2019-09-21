@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Execution;
 
+use Illuminate\Contracts\Foundation\Application;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
 use PhpUnitGen\Console\Contracts\Execution\ProcessHandler as ProcessHandlerContract;
@@ -13,6 +14,7 @@ use PhpUnitGen\Console\Contracts\Files\SourcesResolver;
 use PhpUnitGen\Console\Contracts\Files\TargetResolver;
 use PhpUnitGen\Core\Container\CoreContainerFactory;
 use PhpUnitGen\Core\Contracts\Config\Config;
+use PhpUnitGen\Core\Contracts\Generators\DelegateTestGenerator;
 use PhpUnitGen\Core\CoreApplication;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 use PhpUnitGen\Core\Parsers\Sources\StringSource;
@@ -58,10 +60,10 @@ class Runner implements RunnerContract
     /**
      * Runner constructor.
      *
-     * @param ConfigResolver        $configResolver
-     * @param Filesystem            $filesystem
-     * @param SourcesResolver       $sourcesResolver
-     * @param TargetResolver        $targetResolver
+     * @param ConfigResolver         $configResolver
+     * @param Filesystem             $filesystem
+     * @param SourcesResolver        $sourcesResolver
+     * @param TargetResolver         $targetResolver
      * @param ProcessHandlerContract $processHandler
      */
     public function __construct(
@@ -90,7 +92,7 @@ class Runner implements RunnerContract
             $sources = $this->resolveSources($input, $config);
             $target = $this->resolveTarget($input, $sources);
 
-            $this->processHandler->handleStart($sources);
+            $this->processHandler->handleStart($config, $sources);
 
             $application = $this->buildCoreApplication($config);
 
@@ -105,7 +107,7 @@ class Runner implements RunnerContract
 
         $this->processHandler->handleEnd();
 
-        return 1;
+        return 0;
     }
 
     /**
@@ -117,9 +119,7 @@ class Runner implements RunnerContract
      */
     protected function resolveConfig(InputInterface $input): ConsoleConfig
     {
-        $inputConfig = $input->getOption('config');
-
-        return $this->configResolver->resolve($inputConfig);
+        return $this->configResolver->resolve($input);
     }
 
     /**
@@ -195,11 +195,25 @@ class Runner implements RunnerContract
         string $targetPath
     ): void {
         try {
-            $source = new StringSource($this->filesystem->read($sourcePath));
+            $reflectionClass = $application->getCodeParser()->parse(
+                new StringSource($this->filesystem->read($sourcePath))
+            );
 
-            $rendered = $application->run($source);
+            $testGenerator = $application->getTestGenerator();
+            if ($testGenerator instanceof DelegateTestGenerator) {
+                $testGenerator = $testGenerator->getDelegate($reflectionClass);
+            }
 
-            $realTargetPath = $this->targetResolver->resolve($sourcePath, $targetPath);
+            $testClass = $testGenerator->generate($reflectionClass);
+            $renderer = $application->getRenderer();
+            $renderer->visitTestClass($testClass);
+            $rendered = $renderer->getRendered();
+
+            $realTargetPath = $this->targetResolver->resolve(
+                $testGenerator->getClassFactory(),
+                $sourcePath,
+                $targetPath
+            );
             if ($config->overwriteFiles() !== true
                 && $this->filesystem->has($realTargetPath)
             ) {

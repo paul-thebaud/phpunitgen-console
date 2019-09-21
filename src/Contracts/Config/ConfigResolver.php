@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUnitGen\Console\Contracts\Config;
 
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Interface ConfigResolver.
@@ -16,13 +17,13 @@ use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 interface ConfigResolver
 {
     /**
-     * Try to resolve the given config from its path, or resolve defaults.
+     * Try to resolve the given config from the input, or resolve defaults.
      *
-     * @param string|null $path
+     * @param InputInterface|null $input
      *
      * @return ConsoleConfig
      *
      * @throws InvalidArgumentException
      */
-    public function resolve(?string $path): ConsoleConfig;
+    public function resolve(?InputInterface $input = null): ConsoleConfig;
 }

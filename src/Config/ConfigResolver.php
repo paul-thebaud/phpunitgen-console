@@ -13,6 +13,7 @@ use PhpUnitGen\Console\Contracts\Config\ConsoleConfig as ConsoleConfigContract;
 use PhpUnitGen\Console\Contracts\Files\Filesystem;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 use PhpUnitGen\Core\Helpers\Str;
+use Symfony\Component\Console\Input\InputInterface;
 
 /**
  * Class ConfigResolver.
@@ -59,33 +60,48 @@ class ConfigResolver implements ConfigResolverContract
     /**
      * {@inheritdoc}
      */
-    public function resolve(?string $path): ConsoleConfigContract
+    public function resolve(?InputInterface $input = null): ConsoleConfigContract
     {
+        $path = $input ? $input->getOption('config') : null;
+
         if ($path === null) {
-            return $this->resolveDefaultConfig();
+            [$config, $path] = $this->resolveDefaultConfig();
+        } else {
+            $config = $this->resolveConfigFromPath($path);
         }
 
-        return $this->resolveConfigFromPath($path);
+        if (! is_array($config)) {
+            throw new InvalidArgumentException(
+                'given config does not contains an associative array'
+            );
+        }
+
+        if ($input && $input->getOption('overwrite')) {
+            $config['overwriteFiles'] = true;
+        }
+
+        return ConsoleConfig::make($config)
+            ->setPath($path);
+
     }
 
     /**
-     * Resolve the default config from current working directory.
+     * Resolve the default config from current working directory. Returns config array and
+     * the path to the found config (null if not found).
      *
-     * @return ConsoleConfig
-     *
-     * @throws InvalidArgumentException
+     * @return array
      */
-    protected function resolveDefaultConfig(): ConsoleConfig
+    protected function resolveDefaultConfig(): array
     {
         foreach ($this->getDefaultConfigPaths() as $path) {
             if (! $this->filesystem->has($path)) {
                 continue;
             }
 
-            return $this->resolveConfigFromPath($path);
+            return [$this->resolveConfigFromPath($path), $path];
         }
 
-        return ConsoleConfig::make();
+        return [ConsoleConfig::make()->toArray(), null];
     }
 
     /**
@@ -93,11 +109,9 @@ class ConfigResolver implements ConfigResolverContract
      *
      * @param string $path
      *
-     * @return ConsoleConfig
-     *
-     * @throws InvalidArgumentException
+     * @return array
      */
-    protected function resolveConfigFromPath(string $path): ConsoleConfigContract
+    protected function resolveConfigFromPath(string $path): array
     {
         $resolveStrategy = $this->getResolveStrategy($path);
         $content = $this->filesystem->read($path);

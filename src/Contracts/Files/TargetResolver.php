@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Contracts\Files;
 
+use PhpUnitGen\Core\Contracts\Generators\Factories\ClassFactory;
+
 /**
  * Interface TargetResolver.
  *
@@ -16,10 +18,11 @@ interface TargetResolver
     /**
      * Resolve the target path for the given source path.
      *
-     * @param string $sourcePath
-     * @param string $targetPath
+     * @param ClassFactory $classFactory
+     * @param string       $sourcePath
+     * @param string       $targetPath
      *
      * @return string
      */
-    public function resolve(string $sourcePath, string $targetPath): string;
+    public function resolve(ClassFactory $classFactory, string $sourcePath, string $targetPath): string;
 }

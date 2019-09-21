@@ -12,7 +12,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Trait RunsPhpUnitGen.
+ * Trait IsPhpUnitGenCommand.
  *
  * This trait can be used to configure a Symfony command for PhpUnitGen execution.
  *
@@ -22,14 +22,14 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author  Killian Hascoët <killianh@live.fr>
  * @license MIT
  */
-trait RunsPhpUnitGen
+trait IsPhpUnitGenCommand
 {
     /**
      * Configure the command properties, such as name, options, args, etc.
      */
     protected function configureCommand(): void
     {
-        $this->setName('run')
+        $this->setName('phpunitgen')
             ->setDescription('Generate unit tests\' skeletons for a file/directory')
             ->setHelp(
                 'Use it to generate your unit tests skeletons. See documentation on '.

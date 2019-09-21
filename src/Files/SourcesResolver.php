@@ -28,7 +28,7 @@ class SourcesResolver implements SourcesResolverContract
     /**
      * SourcesResolver constructor.
      *
-     * @param Filesystem    $filesystem
+     * @param Filesystem $filesystem
      */
     public function __construct(Filesystem $filesystem)
     {

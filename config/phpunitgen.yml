@@ -1,0 +1,21 @@
+overwriteFiles: false
+excludedFiles: []
+includedFiles:
+  - '\.php$'
+generateOnMake: true
+automaticGeneration: true
+implementations:
+  PhpUnitGen\Core\Contracts\Generators\TestGenerator: PhpUnitGen\Core\Generators\Tests\DelegateTestGenerator
+baseNamespace: ''
+baseTestNamespace: Tests
+testCase: PHPUnit\Framework\TestCase
+excludedMethods:
+  - __construct
+  - __destruct
+mergedPhpDoc:
+  - author
+  - copyright
+  - license
+  - version
+phpDoc: []
+options: []

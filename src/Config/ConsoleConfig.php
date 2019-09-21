@@ -32,7 +32,13 @@ class ConsoleConfig extends Config implements ConsoleConfigContract
         'overwriteFiles'      => self::TYPE_BOOL,
         'excludedFiles'       => self::TYPE_ARRAY,
         'includedFiles'       => self::TYPE_ARRAY,
+        'generateOnMake'      => self::TYPE_BOOL,
     ];
+
+    /**
+     * @var string|null The config path in filesystem, null if it is default config.
+     */
+    protected $path;
 
     /**
      * {@inheritdoc}
@@ -40,6 +46,24 @@ class ConsoleConfig extends Config implements ConsoleConfigContract
     protected static function getDefaultConfig(): array
     {
         return require __DIR__.'/../../config/phpunitgen.php';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getPath(): ?string
+    {
+        return $this->path;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setPath(?string $path): ConsoleConfigContract
+    {
+        $this->path = $path;
+
+        return $this;
     }
 
     /**
@@ -64,5 +88,10 @@ class ConsoleConfig extends Config implements ConsoleConfigContract
     public function includedFiles(): array
     {
         return $this->config['includedFiles'];
+    }
+
+    public function generateOnMake(): bool
+    {
+        return $this->config['generateOnMake'];
     }
 }
