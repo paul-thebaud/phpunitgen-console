@@ -4,7 +4,13 @@
 namespace PhpUnitGen\Console;
 
 $loaded = false;
-foreach ([__DIR__.'/../../autoload.php', __DIR__.'/vendor/autoload.php', __DIR__.'/../vendor/autoload.php'] as $file) {
+$files = [
+    __DIR__.'/../../../autoload.php',
+    __DIR__.'/../../autoload.php',
+    __DIR__.'/vendor/autoload.php',
+    __DIR__.'/../vendor/autoload.php',
+];
+foreach ($files as $file) {
     if (file_exists($file)) {
         require $file;
         $loaded = true;
@@ -19,5 +25,7 @@ if (! $loaded) {
         'php composer.phar install'.PHP_EOL
     );
 }
+
+unset($files, $file, $loaded);
 
 ConsoleApplication::make()->run();
