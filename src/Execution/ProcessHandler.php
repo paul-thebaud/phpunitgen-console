@@ -33,6 +33,21 @@ class ProcessHandler implements ProcessHandlerContract
     protected const SOURCES_PER_LINE = 50;
 
     /**
+     * The foreground used for success output.
+     */
+    protected const SUCCESS_FOREGROUND = 'green';
+
+    /**
+     * The foreground used for warning output.
+     */
+    protected const WARNING_FOREGROUND = 'yellow';
+
+    /**
+     * The foreground used for error output.
+     */
+    protected const ERROR_FOREGROUND = 'red';
+
+    /**
      * @var Stopwatch
      */
     protected $stopwatch;
@@ -131,7 +146,7 @@ class ProcessHandler implements ProcessHandlerContract
     {
         $this->warnings->put($absoluteSourcePath, $warningMessage);
 
-        $this->writeProgress('W', 'yellow');
+        $this->writeProgress('W', self::WARNING_FOREGROUND);
     }
 
     /**
@@ -141,7 +156,7 @@ class ProcessHandler implements ProcessHandlerContract
     {
         $this->errors->put($absoluteSourcePath, $exception);
 
-        $this->writeProgress('E', 'red');
+        $this->writeProgress('E', self::ERROR_FOREGROUND);
     }
 
     /**
@@ -150,12 +165,12 @@ class ProcessHandler implements ProcessHandlerContract
     public function handleCriticalError(Throwable $exception): void
     {
         $this->writeln()
-            ->writeln("Critical error during execution: {$exception->getMessage()}", 'red');
+            ->writeln("Critical error during execution: {$exception->getMessage()}", self::ERROR_FOREGROUND);
 
         if ($this->output->isDebug()) {
             VarDumper::dump($exception);
         } else {
-            $this->writeExceptionDumpTip();
+            $this->writeErrorsDumpTip();
         }
     }
 
@@ -168,27 +183,9 @@ class ProcessHandler implements ProcessHandlerContract
 
         if ($this->errors->isNotEmpty() || $this->warnings->isNotEmpty()) {
             if ($this->output->isVeryVerbose()) {
-                $this->sources->each(function (string $source) {
-                    $warning = $this->warnings->get($source);
-                    if ($warning !== null && $this->output->isDebug()) {
-                        $this->writeln()
-                            ->writeln("Warning with {$source}: {$warning}", 'yellow');
-
-                        return;
-                    }
-
-                    $error = $this->errors->get($source);
-                    if ($error !== null) {
-                        $this->writeln()
-                            ->writeln("Error with {$source}: {$error->getMessage()}", 'red');
-
-                        if ($this->output->isDebug()) {
-                            VarDumper::dump($error);
-                        }
-                    }
-                });
+                $this->writeErrors();
             } else {
-                $this->writeExceptionDumpTip();
+                $this->writeErrorsDumpTip();
             }
         }
 
@@ -196,9 +193,9 @@ class ProcessHandler implements ProcessHandlerContract
             ->writeln('Generation is finished! ')
             ->writeln()
             ->writeln($this->sourcesCount.' source(s) identified')
-            ->writeln($this->successes->count().' success(es)', 'green')
-            ->writeln($this->warnings->count().' warning(s)', 'yellow')
-            ->writeln($this->errors->count().' errors(s)', 'red')
+            ->writeln($this->successes->count().' success(es)', self::SUCCESS_FOREGROUND)
+            ->writeln($this->warnings->count().' warning(s)', self::WARNING_FOREGROUND)
+            ->writeln($this->errors->count().' errors(s)', self::ERROR_FOREGROUND)
             ->writeln()
             ->writeln("Execution time: {$this->getFormattedDuration($stopwatchEvent)}")
             ->writeln("Memory usage: {$this->getFormattedMemory($stopwatchEvent)}");
@@ -269,9 +266,35 @@ class ProcessHandler implements ProcessHandlerContract
     }
 
     /**
+     * Write warnings/errors on output.
+     */
+    protected function writeErrors(): void
+    {
+        $this->sources->each(function (string $source) {
+            $warning = $this->warnings->get($source);
+            if ($warning !== null && $this->output->isDebug()) {
+                $this->writeln()
+                    ->writeln("Warning with {$source}: {$warning}", self::WARNING_FOREGROUND);
+
+                return;
+            }
+
+            $error = $this->errors->get($source);
+            if ($error !== null) {
+                $this->writeln()
+                    ->writeln("Error with {$source}: {$error->getMessage()}", self::ERROR_FOREGROUND);
+
+                if ($this->output->isDebug()) {
+                    VarDumper::dump($error);
+                }
+            }
+        });
+    }
+
+    /**
      * Write a tip about exception dumping.
      */
-    protected function writeExceptionDumpTip(): void
+    protected function writeErrorsDumpTip(): void
     {
         if (! $this->output->isVeryVerbose()) {
             $this->writeln()

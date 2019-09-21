@@ -46,8 +46,7 @@ class TargetResolver implements TargetResolverContract
 
         $compiledPath = Str::replaceFirst($this->filesystem->getRoot(), '', $sourcePath);
         $compiledPath = $targetPath.Str::afterFirst('/', $compiledPath);
-        $compiledPath = Str::replaceLast('.php', 'Test.php', $compiledPath);
 
-        return $compiledPath;
+        return Str::replaceLast('.php', 'Test.php', $compiledPath);
     }
 }
