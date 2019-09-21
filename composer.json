@@ -30,7 +30,7 @@
     "ext-json": "*",
     "league/container": "^3.3",
     "league/flysystem": "^1.0",
-    "ocramius/package-versions": "^1.5",
+    "ocramius/package-versions": "^1.4",
     "phpunitgen/core": "^1.0@alpha",
     "symfony/stopwatch": "^4.3",
     "symfony/yaml": "^4.3",
