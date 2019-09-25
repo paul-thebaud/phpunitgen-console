@@ -23,5 +23,7 @@
     "version"
   ],
   "phpDoc": [],
-  "options": []
+  "options": {
+    "context": "laravel"
+  }
 }

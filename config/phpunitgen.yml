@@ -18,4 +18,5 @@ mergedPhpDoc:
   - license
   - version
 phpDoc: []
-options: []
+options:
+  context: laravel

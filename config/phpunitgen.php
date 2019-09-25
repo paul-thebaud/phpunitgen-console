@@ -144,6 +144,18 @@ return [
     'options'             => [
         /*
          |----------------------------------------------------------------------
+         | Context.
+         |
+         | Tells the DelegateTestGenerator (default one) that we are in a
+         | specific project context. If defined to "null", it will used basic
+         | generators. If set to "laravel", it will use the Laravel tests
+         | generators.
+         |----------------------------------------------------------------------
+         */
+        'context' => 'laravel',
+
+        /*
+         |----------------------------------------------------------------------
          | Laravel Options.
          |
          | Those options are used by Laravel Test Generators and are nested in
