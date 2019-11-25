@@ -9,9 +9,9 @@
   "implementations": {
     "PhpUnitGen\\Core\\Contracts\\Generators\\TestGenerator": "PhpUnitGen\\Core\\Generators\\Tests\\DelegateTestGenerator"
   },
-  "baseNamespace": "",
+  "baseNamespace": "App",
   "baseTestNamespace": "Tests",
-  "testCase": "PHPUnit\\Framework\\TestCase",
+  "testCase": "Tests\\TestCase",
   "excludedMethods": [
     "__construct",
     "__destruct"

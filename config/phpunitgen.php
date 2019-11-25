@@ -74,7 +74,7 @@ return [
      | This string will be removed from the test class namespace.
      |--------------------------------------------------------------------------
      */
-    'baseNamespace'       => '',
+    'baseNamespace'       => 'App',
 
     /*
      |--------------------------------------------------------------------------
@@ -92,7 +92,7 @@ return [
      | The absolute class name to TestCase.
      |--------------------------------------------------------------------------
      */
-    'testCase'            => 'PHPUnit\\Framework\\TestCase',
+    'testCase'            => 'Tests\\TestCase',
 
     /*
      |--------------------------------------------------------------------------
