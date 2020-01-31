@@ -246,22 +246,18 @@ class CommandFinishedListener
     {
         $sources = new Collection();
         $qualifiedName = $this->getQualifiedName($input);
-        $objectName = Str::ucfirst(Str::replaceFirst('make:', '', $command));
-        $addSourceMethod = 'addSourcesFor'.$objectName;
+        $objectName = Str::replaceFirst('make:', '', $command);
 
-        if (method_exists($this, $addSourceMethod)) {
-            call_user_func_array(
-                [$this, $addSourceMethod],
-                [$sources, $this->getQualifiedName($input), $input]
-            );
+        if ($objectName === 'model') {
+            $this->addSourcesForModel($sources, $qualifiedName, $input);
 
             return $sources->unique();
         }
 
-        $getSourceNameMethod = "get{$objectName}SourceName";
-        if (method_exists($this, $getSourceNameMethod)) {
+        $possibleSources = $this->getSourcesNames();
+        if (isset($possibleSources[$objectName])) {
             return $sources->add(
-                call_user_func([$this, $getSourceNameMethod], $qualifiedName)
+                $possibleSources[$objectName].$qualifiedName
             );
         }
 
@@ -303,10 +299,10 @@ class CommandFinishedListener
      */
     protected function addSourcesForModel(Collection $sources, string $name, InputInterface $input)
     {
-        $sources->add($this->getModelSourceName($name));
+        $sources->add($name);
 
         if ($input->getOption('controller')) {
-            $sources->add($this->getControllerSourceName($name.'Controller'));
+            $sources->add('Http/Controllers/'.$name.'Controller');
         }
     }
 
@@ -317,238 +313,29 @@ class CommandFinishedListener
      */
 
     /**
-     * Get the channel name.
+     * Get the mapping between class type and source name.
      *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
+     * @return array
      */
-    protected function getChannelSourceName(string $name): string
+    protected function getSourcesNames(): array
     {
-        return 'Broadcasting/'.$name;
-    }
-
-    /**
-     * Get the command name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getCommandSourceName(string $name): string
-    {
-        return 'Console/Commands/'.$name;
-    }
-
-    /**
-     * Get the controller name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getControllerSourceName(string $name): string
-    {
-        return "Http/Controllers/{$name}";
-    }
-
-    /**
-     * Get the event name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getEventSourceName(string $name): string
-    {
-        return 'Events/'.$name;
-    }
-
-    /**
-     * Get the exception name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getExceptionSourceName(string $name): string
-    {
-        return 'Exceptions/'.$name;
-    }
-
-    /**
-     * Get the job name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getJobSourceName(string $name): string
-    {
-        return 'Jobs/'.$name;
-    }
-
-    /**
-     * Get the listener name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getListenerSourceName(string $name): string
-    {
-        return 'Listeners/'.$name;
-    }
-
-    /**
-     * Get the mail name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getMailSourceName(string $name): string
-    {
-        return 'Mail/'.$name;
-    }
-
-    /**
-     * Get the middleware name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getMiddlewareSourceName(string $name): string
-    {
-        return 'Http/Middleware/'.$name;
-    }
-
-    /**
-     * Get the model name.
-     *
-     * @param string $name
-     *
-     * @return string
-     */
-    protected function getModelSourceName(string $name): string
-    {
-        return $name;
-    }
-
-    /**
-     * Get the notification name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getNotificationSourceName(string $name): string
-    {
-        return 'Notifications/'.$name;
-    }
-
-    /**
-     * Get the observer name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getObserverSourceName(string $name): string
-    {
-        return 'Observers/'.$name;
-    }
-
-    /**
-     * Get the policy name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getPolicySourceName(string $name): string
-    {
-        return 'Policies/'.$name;
-    }
-
-    /**
-     * Get the provider name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getProviderSourceName(string $name): string
-    {
-        return 'Providers/'.$name;
-    }
-
-    /**
-     * Get the request name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getRequestSourceName(string $name): string
-    {
-        return 'Http/Requests/'.$name;
-    }
-
-    /**
-     * Get the resource name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getResourceSourceName(string $name): string
-    {
-        return 'Http/Resources/'.$name;
-    }
-
-    /**
-     * Get the rule name.
-     *
-     * @param string $name
-     *
-     * @return string
-     *
-     * @see CommandFinishedListener::getSources()
-     */
-    protected function getRuleSourceName(string $name): string
-    {
-        return 'Rules/'.$name;
+        return [
+            'channel'      => 'Broadcasting/',
+            'command'      => 'Console/Commands/',
+            'controller'   => 'Http/Controllers/',
+            'event'        => 'Events/',
+            'exception'    => 'Exceptions/',
+            'job'          => 'Jobs/',
+            'listener'     => 'Listeners/',
+            'mail'         => 'Mail/',
+            'middleware'   => 'Http/Middleware/',
+            'notification' => 'Notifications/',
+            'observer'     => 'Observers/',
+            'policy'       => 'Policies/',
+            'provider'     => 'Providers/',
+            'request'      => 'Http/Requests/',
+            'resource'     => 'Http/Resources/',
+            'rule'         => 'Rules/',
+        ];
     }
 }
