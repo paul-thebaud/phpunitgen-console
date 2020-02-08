@@ -31,7 +31,7 @@
     "league/container": "^3.3",
     "league/flysystem": "^1.0",
     "ocramius/package-versions": "^1.4",
-    "phpunitgen/core": "^1.0@alpha",
+    "phpunitgen/core": "^1.0@beta",
     "symfony/stopwatch": "^4.3",
     "symfony/yaml": "^4.3",
     "tightenco/collect": "^6.0"
