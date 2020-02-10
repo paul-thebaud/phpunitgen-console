@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
 use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
+use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -21,6 +22,12 @@ class YamlConfigResolverAdapter implements ConfigResolverAdapter
      */
     public function resolve(string $content): array
     {
-        return Yaml::parse($content);
+        $resolved = Yaml::parse($content);
+
+        if (is_array($resolved)) {
+            return $resolved;
+        }
+
+        throw new InvalidArgumentException('invalid Yaml configuration content');
     }
 }

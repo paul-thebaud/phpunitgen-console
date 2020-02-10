@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
 use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
+use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 
 /**
  * Class JsonConfigResolverAdapter.
@@ -20,6 +21,12 @@ class JsonConfigResolverAdapter implements ConfigResolverAdapter
      */
     public function resolve(string $content): array
     {
-        return json_decode($content, true);
+        $resolved = json_decode($content, true);
+
+        if (is_array($resolved)) {
+            return $resolved;
+        }
+
+        throw new InvalidArgumentException('invalid JSON configuration content');
     }
 }

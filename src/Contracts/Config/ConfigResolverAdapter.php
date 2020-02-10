@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Contracts\Config;
 
+use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
+
 /**
  * Interface ConfigResolverAdapter.
  *
@@ -19,6 +21,8 @@ interface ConfigResolverAdapter
      * @param string $content
      *
      * @return array
+     *
+     * @throws InvalidArgumentException
      */
     public function resolve(string $content): array;
 }

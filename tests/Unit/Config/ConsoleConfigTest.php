@@ -8,6 +8,11 @@ use PhpUnitGen\Console\Config\ConsoleConfig;
 use PhpUnitGen\Core\Generators\Tests\DelegateTestGenerator;
 use Tests\PhpUnitGen\Console\TestCase;
 
+/**
+ * Class ConsoleConfigTest.
+ *
+ * @covers \PhpUnitGen\Console\Config\ConsoleConfig
+ */
 class ConsoleConfigTest extends TestCase
 {
     public function testWhenDefaultConfiguration(): void

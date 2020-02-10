@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PhpUnitGen\Console\Config\ConfigResolverAdapters;
 
 use PhpUnitGen\Console\Contracts\Config\ConfigResolverAdapter;
+use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 
 /**
  * Class PhpConfigResolverAdapter.
@@ -22,9 +23,13 @@ class PhpConfigResolverAdapter implements ConfigResolverAdapter
     {
         $tempFile = tmpfile();
         fwrite($tempFile, $content);
-        $config = include stream_get_meta_data($tempFile)['uri'];
+        $resolved = include stream_get_meta_data($tempFile)['uri'];
         fclose($tempFile);
 
-        return $config;
+        if (is_array($resolved)) {
+            return $resolved;
+        }
+
+        throw new InvalidArgumentException('invalid PHP configuration content');
     }
 }
