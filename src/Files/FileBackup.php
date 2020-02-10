@@ -37,12 +37,11 @@ class FileBackup implements FileBackupContract
     public function backup(string $filePath): void
     {
         $existingCount = 1;
-        while ($this->filesystem->has($this->getBackupPath($filePath))) {
-            $filePath = $filePath.'_'.$existingCount;
+        $backupPath = $this->getBackupPath($filePath);
+        while ($this->filesystem->has($backupPath)) {
+            $backupPath = $this->getBackupPath($filePath.'.'.$existingCount);
             $existingCount++;
         }
-
-        $backupPath = $this->getBackupPath($filePath);
 
         $this->filesystem->rename($filePath, $backupPath);
     }
