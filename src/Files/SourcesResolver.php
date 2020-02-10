@@ -56,6 +56,6 @@ class SourcesResolver implements SourcesResolverContract
             );
         }
 
-        return $sources;
+        return $sources->values();
     }
 }
