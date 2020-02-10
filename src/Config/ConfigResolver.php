@@ -70,12 +70,6 @@ class ConfigResolver implements ConfigResolverContract
             $config = $this->resolveConfigFromPath($path);
         }
 
-        if (! is_array($config)) {
-            throw new InvalidArgumentException(
-                'given config does not contains an associative array'
-            );
-        }
-
         if ($input && $input->getOption('overwrite')) {
             $config['overwriteFiles'] = true;
         }
@@ -131,7 +125,7 @@ class ConfigResolver implements ConfigResolverContract
     {
         $pathLength = mb_strlen($path);
         if (mb_strrpos($path, '.dist') === ($pathLength - 5)) {
-            $path = mb_substr($path, -5);
+            $path = mb_substr($path, 0, -5);
         }
 
         $extension = Str::afterLast('.', $path);
