@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Execution;
 
-use Illuminate\Contracts\Foundation\Application;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
 use PhpUnitGen\Console\Contracts\Execution\ProcessHandler as ProcessHandlerContract;
 use PhpUnitGen\Console\Contracts\Execution\Runner as RunnerContract;
+use PhpUnitGen\Console\Contracts\Files\FileBackup;
 use PhpUnitGen\Console\Contracts\Files\Filesystem;
 use PhpUnitGen\Console\Contracts\Files\SourcesResolver;
 use PhpUnitGen\Console\Contracts\Files\TargetResolver;
@@ -53,6 +53,11 @@ class Runner implements RunnerContract
     protected $targetResolver;
 
     /**
+     * @var FileBackup
+     */
+    protected $fileBackup;
+
+    /**
      * @var ProcessHandlerContract
      */
     protected $processHandler;
@@ -64,6 +69,7 @@ class Runner implements RunnerContract
      * @param Filesystem             $filesystem
      * @param SourcesResolver        $sourcesResolver
      * @param TargetResolver         $targetResolver
+     * @param FileBackup             $fileBackup
      * @param ProcessHandlerContract $processHandler
      */
     public function __construct(
@@ -71,12 +77,14 @@ class Runner implements RunnerContract
         Filesystem $filesystem,
         SourcesResolver $sourcesResolver,
         TargetResolver $targetResolver,
+        FileBackup $fileBackup,
         ProcessHandlerContract $processHandler
     ) {
         $this->configResolver = $configResolver;
         $this->filesystem = $filesystem;
         $this->sourcesResolver = $sourcesResolver;
         $this->targetResolver = $targetResolver;
+        $this->fileBackup = $fileBackup;
         $this->processHandler = $processHandler;
     }
 
@@ -214,15 +222,20 @@ class Runner implements RunnerContract
                 $sourcePath,
                 $targetPath
             );
-            if ($config->overwriteFiles() !== true
-                && $this->filesystem->has($realTargetPath)
-            ) {
-                $this->processHandler->handleWarning(
-                    $sourcePath,
-                    "cannot generate tests to {$realTargetPath}, file exists and overwriting is disabled"
-                );
 
-                return;
+            if ($this->filesystem->has($realTargetPath)) {
+                if ($config->overwriteFiles() !== true) {
+                    $this->processHandler->handleWarning(
+                        $sourcePath,
+                        "cannot generate tests to {$realTargetPath}, file exists and overwriting is disabled"
+                    );
+
+                    return;
+                }
+
+                if ($config->backupFiles() === true) {
+                    $this->fileBackup->backup($realTargetPath);
+                }
             }
 
             $this->filesystem->write($realTargetPath, $rendered->toString());

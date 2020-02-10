@@ -40,6 +40,14 @@ interface ConsoleConfig extends Config
     public function overwriteFiles(): ?bool;
 
     /**
+     * Tells if the generator should backup the existing files which will be
+     * overwritten (useful when "overwriteFile" is enabled).
+     *
+     * @return bool
+     */
+    public function backupFiles(): ?bool;
+
+    /**
      * Get the case insensitive RegExp (without opening and closing "/") that files' path shouldn't match.
      *
      * @return array

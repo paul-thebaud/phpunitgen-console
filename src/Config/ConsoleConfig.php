@@ -21,6 +21,7 @@ class ConsoleConfig extends Config implements ConsoleConfigContract
      */
     protected const PROPERTIES = [
         'automaticGeneration' => self::TYPE_BOOL,
+        'backupFiles'         => self::TYPE_BOOL,
         'implementations'     => self::TYPE_ARRAY,
         'baseNamespace'       => self::TYPE_STRING,
         'baseTestNamespace'   => self::TYPE_STRING,
@@ -72,6 +73,14 @@ class ConsoleConfig extends Config implements ConsoleConfigContract
     public function overwriteFiles(): ?bool
     {
         return $this->config['overwriteFiles'];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function backupFiles(): ?bool
+    {
+        return $this->config['backupFiles'];
     }
 
     /**

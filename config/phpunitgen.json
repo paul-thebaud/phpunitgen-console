@@ -1,5 +1,6 @@
 {
   "overwriteFiles": false,
+  "backupFiles": true,
   "excludedFiles": [],
   "includedFiles": [
     "\\.php$"

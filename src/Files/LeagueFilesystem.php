@@ -153,6 +153,25 @@ class LeagueFilesystem implements FilesystemContract
     /**
      * {@inheritdoc}
      */
+    public function rename(string $path, string $newPath): void
+    {
+        $absolutePath = $this->getAbsolutePath($path);
+        $newAbsolutePath = $this->getAbsolutePath($path);
+
+        if (! $this->isFile($absolutePath)) {
+            throw new InvalidArgumentException("cannot rename not found file {$path}");
+        }
+
+        if ($this->isFile($absolutePath)) {
+            throw new InvalidArgumentException("cannot rename to existing file {$newPath}");
+        }
+
+        $this->filesystem->rename($absolutePath, $newAbsolutePath);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getRoot(): string
     {
         return $this->currentWorkingDirectory.'/';

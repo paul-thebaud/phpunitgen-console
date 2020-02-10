@@ -15,6 +15,16 @@ return [
 
     /*
      |--------------------------------------------------------------------------
+     | Backup files.
+     |
+     | Tells if the generator should backup the existing files which will be
+     | overwritten (useful when "overwriteFile" is enabled).
+     |--------------------------------------------------------------------------
+     */
+    'backupFiles'         => true,
+
+    /*
+     |--------------------------------------------------------------------------
      | Excluded files.
      |
      | Files matching this regex will not have tests generation. This must
@@ -45,7 +55,7 @@ return [
      | generate the associated tests. Only works with Laravel for the moment.
      |--------------------------------------------------------------------------
      */
-    'generateOnMake'       => true,
+    'generateOnMake'      => true,
 
     /*
      |--------------------------------------------------------------------------

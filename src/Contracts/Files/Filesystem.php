@@ -82,6 +82,16 @@ interface Filesystem
     public function delete(string $path): void;
 
     /**
+     * Rename a file.
+     *
+     * @param string $path
+     * @param string $newPath
+     *
+     * @throws InvalidArgumentException
+     */
+    public function rename(string $path, string $newPath): void;
+
+    /**
      * Get the root path of filesystem.
      *
      * @return string
