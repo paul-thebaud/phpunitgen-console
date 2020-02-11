@@ -73,15 +73,6 @@ interface Filesystem
     public function write(string $file, string $content): void;
 
     /**
-     * Delete a file/directory.
-     *
-     * @param string $path
-     *
-     * @throws InvalidArgumentException
-     */
-    public function delete(string $path): void;
-
-    /**
      * Rename a file.
      *
      * @param string $path

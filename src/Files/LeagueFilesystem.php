@@ -99,7 +99,8 @@ class LeagueFilesystem implements FilesystemContract
             })
             ->map(function (array $file) {
                 return '/'.$file['path'];
-            });
+            })
+            ->values();
     }
 
     /**
@@ -110,7 +111,7 @@ class LeagueFilesystem implements FilesystemContract
         try {
             return $this->filesystem->read($this->getAbsolutePath($file));
         } catch (FileNotFoundException $exception) {
-            throw new InvalidArgumentException("file not found: {$file}");
+            throw new InvalidArgumentException('file not found: '.$file);
         }
     }
 
@@ -121,33 +122,17 @@ class LeagueFilesystem implements FilesystemContract
     {
         $path = $this->getAbsolutePath($file);
 
-        if ($this->filesystem->has($path)) {
-            $this->filesystem->update($this->getAbsolutePath($file), $content);
+        if ($this->isDirectory($path)) {
+            throw new InvalidArgumentException(
+                'cannot write file because directory with same name exists: '.$file
+            );
+        }
+
+        if ($this->has($path)) {
+            $this->filesystem->update($path, $content);
         } else {
-            $this->filesystem->write($this->getAbsolutePath($file), $content);
+            $this->filesystem->write($path, $content);
         }
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function delete(string $path): void
-    {
-        $absolutePath = $this->getAbsolutePath($path);
-
-        if ($this->isFile($absolutePath)) {
-            $this->filesystem->delete($absolutePath);
-
-            return;
-        }
-
-        if ($this->isDirectory($absolutePath)) {
-            $this->filesystem->deleteDir($absolutePath);
-
-            return;
-        }
-
-        throw new InvalidArgumentException("cannot delete not found file/dir {$path}");
     }
 
     /**
@@ -156,14 +141,14 @@ class LeagueFilesystem implements FilesystemContract
     public function rename(string $path, string $newPath): void
     {
         $absolutePath = $this->getAbsolutePath($path);
-        $newAbsolutePath = $this->getAbsolutePath($path);
+        $newAbsolutePath = $this->getAbsolutePath($newPath);
 
-        if (! $this->isFile($absolutePath)) {
-            throw new InvalidArgumentException("cannot rename not found file {$path}");
+        if (! $this->has($absolutePath)) {
+            throw new InvalidArgumentException("cannot rename not found {$path}");
         }
 
-        if ($this->isFile($absolutePath)) {
-            throw new InvalidArgumentException("cannot rename to existing file {$newPath}");
+        if ($this->has($newAbsolutePath)) {
+            throw new InvalidArgumentException("cannot rename to existing {$newPath}");
         }
 
         $this->filesystem->rename($absolutePath, $newAbsolutePath);
@@ -175,6 +160,16 @@ class LeagueFilesystem implements FilesystemContract
     public function getRoot(): string
     {
         return $this->currentWorkingDirectory.'/';
+    }
+
+    /**
+     * Retrieve the base League filesystem instance.
+     *
+     * @return FilesystemInterface
+     */
+    public function getFilesystem(): FilesystemInterface
+    {
+        return $this->filesystem;
     }
 
     /**
