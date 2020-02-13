@@ -6,7 +6,7 @@ namespace PhpUnitGen\Console\Execution;
 
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
-use PhpUnitGen\Console\Contracts\Execution\ProcessHandler as ProcessHandlerContract;
+use PhpUnitGen\Console\Contracts\Execution\ProcessHandler;
 use PhpUnitGen\Console\Contracts\Execution\Runner as RunnerContract;
 use PhpUnitGen\Console\Contracts\Files\FileBackup;
 use PhpUnitGen\Console\Contracts\Files\Filesystem;
@@ -58,19 +58,19 @@ class Runner implements RunnerContract
     protected $fileBackup;
 
     /**
-     * @var ProcessHandlerContract
+     * @var ProcessHandler
      */
     protected $processHandler;
 
     /**
      * Runner constructor.
      *
-     * @param ConfigResolver         $configResolver
-     * @param Filesystem             $filesystem
-     * @param SourcesResolver        $sourcesResolver
-     * @param TargetResolver         $targetResolver
-     * @param FileBackup             $fileBackup
-     * @param ProcessHandlerContract $processHandler
+     * @param ConfigResolver  $configResolver
+     * @param Filesystem      $filesystem
+     * @param SourcesResolver $sourcesResolver
+     * @param TargetResolver  $targetResolver
+     * @param FileBackup      $fileBackup
+     * @param ProcessHandler  $processHandler
      */
     public function __construct(
         ConfigResolver $configResolver,
@@ -78,7 +78,7 @@ class Runner implements RunnerContract
         SourcesResolver $sourcesResolver,
         TargetResolver $targetResolver,
         FileBackup $fileBackup,
-        ProcessHandlerContract $processHandler
+        ProcessHandler $processHandler
     ) {
         $this->configResolver = $configResolver;
         $this->filesystem = $filesystem;
@@ -213,9 +213,9 @@ class Runner implements RunnerContract
             }
 
             $testClass = $testGenerator->generate($reflectionClass);
-            $renderer = $application->getRenderer();
-            $renderer->visitTestClass($testClass);
-            $rendered = $renderer->getRendered();
+            $rendered = $application->getRenderer()
+                ->visitTestClass($testClass)
+                ->getRendered();
 
             $realTargetPath = $this->targetResolver->resolve(
                 $testGenerator->getClassFactory(),
