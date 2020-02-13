@@ -180,7 +180,7 @@ class ProcessHandlerTest extends TestCase
             ->with('<fg=red>E</>', false);
 
         $this->processHandler->handleStart(ConsoleConfig::make(), new Collection(['foo', 'baz']));
-        $this->processHandler->handleError('foo', $exception = new Exception("message"));
+        $this->processHandler->handleError('foo', $exception = new Exception('message'));
 
         $this->assertSame(0, $this->processHandler->getSuccesses()->count());
         $this->assertSame(0, $this->processHandler->getWarnings()->count());
@@ -236,7 +236,7 @@ class ProcessHandlerTest extends TestCase
             ->with('<fg=red>Critical error during execution: foo bar</>', true);
 
         $dumped = false;
-        $exception = new Exception("foo bar");
+        $exception = new Exception('foo bar');
 
         VarDumper::setHandler(function ($var) use (&$dumped, $exception) {
             $dumped = $exception === $var;
@@ -270,7 +270,7 @@ class ProcessHandlerTest extends TestCase
             $dumped = true;
         });
 
-        $this->processHandler->handleCriticalError(new Exception("foo bar"));
+        $this->processHandler->handleCriticalError(new Exception('foo bar'));
 
         $this->assertFalse($dumped);
     }
@@ -396,7 +396,7 @@ class ProcessHandlerTest extends TestCase
 
         $this->processHandler->getSuccesses()->put('foo', 'fooTest');
         $this->processHandler->getWarnings()->put('foo', 'foo warning');
-        $this->processHandler->getErrors()->put('baz', new Exception("baz exception"));
+        $this->processHandler->getErrors()->put('baz', new Exception('baz exception'));
 
         $stopWatchEvent = Mockery::mock(StopwatchEvent::class);
 
@@ -489,7 +489,7 @@ class ProcessHandlerTest extends TestCase
             'baz',
         ]));
 
-        $exception = new Exception("baz exception");
+        $exception = new Exception('baz exception');
 
         $this->processHandler->getSuccesses()->put('foo', 'fooTest');
         $this->processHandler->getWarnings()->put('foo', 'foo warning');

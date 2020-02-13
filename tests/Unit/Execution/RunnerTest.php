@@ -29,7 +29,6 @@ use Tightenco\Collect\Support\Collection;
  */
 class RunnerTest extends TestCase
 {
-
     /**
      * @var ConfigResolver|Mock
      */
