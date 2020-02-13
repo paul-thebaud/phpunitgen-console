@@ -63,16 +63,6 @@ class ProcessHandler implements ProcessHandlerContract
     protected $sources;
 
     /**
-     * @var int The number of identified sources.
-     */
-    protected $sourcesCount;
-
-    /**
-     * @var int The number of already processed sources.
-     */
-    protected $processedSourcesCount;
-
-    /**
      * @var Collection|string[] The list of successful generation (map between source and target).
      */
     protected $successes;
@@ -113,8 +103,6 @@ class ProcessHandler implements ProcessHandlerContract
     public function handleStart(ConsoleConfig $config, Collection $sources): void
     {
         $this->sources = $sources;
-        $this->sourcesCount = $sources->count();
-        $this->processedSourcesCount = 0;
         $this->successes = new Collection();
         $this->warnings = new Collection();
         $this->errors = new Collection();
@@ -165,9 +153,9 @@ class ProcessHandler implements ProcessHandlerContract
     public function handleCriticalError(Throwable $exception): void
     {
         $this->writeln()
-            ->writeln("Critical error during execution: {$exception->getMessage()}", self::ERROR_FOREGROUND);
+            ->writeln('Critical error during execution: '.$exception->getMessage(), self::ERROR_FOREGROUND);
 
-        if ($this->output->isDebug()) {
+        if ($this->output->isVeryVerbose()) {
             VarDumper::dump($exception);
         } else {
             $this->writeErrorsDumpTip();
@@ -181,24 +169,55 @@ class ProcessHandler implements ProcessHandlerContract
     {
         $stopwatchEvent = $this->stopwatch->stop(self::STOPWATCH_PROCESS);
 
-        if ($this->errors->isNotEmpty() || $this->warnings->isNotEmpty()) {
-            if ($this->output->isVeryVerbose()) {
-                $this->writeErrors();
-            } else {
+        if ($this->warnings->isNotEmpty() || $this->errors->isNotEmpty()) {
+            $this->writeErrors();
+            if (! $this->output->isVeryVerbose()) {
                 $this->writeErrorsDumpTip();
             }
         }
 
         $this->writeln()
-            ->writeln('Generation is finished! ')
+            ->writeln('Generation is finished!')
             ->writeln()
-            ->writeln($this->sourcesCount.' source(s) identified')
+            ->writeln($this->sources->count().' source(s) identified')
             ->writeln($this->successes->count().' success(es)', self::SUCCESS_FOREGROUND)
             ->writeln($this->warnings->count().' warning(s)', self::WARNING_FOREGROUND)
             ->writeln($this->errors->count().' errors(s)', self::ERROR_FOREGROUND)
             ->writeln()
             ->writeln("Execution time: {$this->getFormattedDuration($stopwatchEvent)}")
             ->writeln("Memory usage: {$this->getFormattedMemory($stopwatchEvent)}");
+    }
+
+    /**
+     * @return Collection|string[]
+     */
+    public function getSources()
+    {
+        return $this->sources;
+    }
+
+    /**
+     * @return Collection|string[]
+     */
+    public function getSuccesses()
+    {
+        return $this->successes;
+    }
+
+    /**
+     * @return Collection|string[]
+     */
+    public function getWarnings()
+    {
+        return $this->warnings;
+    }
+
+    /**
+     * @return Collection|Throwable[]
+     */
+    public function getErrors()
+    {
+        return $this->errors;
     }
 
     /**
@@ -248,22 +267,30 @@ class ProcessHandler implements ProcessHandlerContract
      */
     protected function writeProgress(string $char, ?string $foreground = null): self
     {
-        $this->processedSourcesCount++;
-
         $this->write($char, $foreground);
 
-        $alreadyOnLineCount = $this->processedSourcesCount % self::SOURCES_PER_LINE;
-        $isFinished = $this->processedSourcesCount === $this->sourcesCount;
+        $alreadyOnLineCount = $this->getProcessedSourcesCount() % self::SOURCES_PER_LINE;
+        $isFinished = $this->getProcessedSourcesCount() === $this->sources->count();
 
         if ($alreadyOnLineCount !== 0 && $isFinished) {
             $this->write(str_repeat(' ', self::SOURCES_PER_LINE - $alreadyOnLineCount));
         }
 
         if ($alreadyOnLineCount === 0 || $isFinished) {
-            $this->writeln("    ({$this->processedSourcesCount} / {$this->sourcesCount})");
+            $this->writeln("    ({$this->getProcessedSourcesCount()} / {$this->sources->count()})");
         }
 
         return $this;
+    }
+
+    /**
+     * Get the number of processed sources.
+     *
+     * @return int
+     */
+    protected function getProcessedSourcesCount(): int
+    {
+        return $this->successes->count() + $this->warnings->count() + $this->errors->count();
     }
 
     /**
@@ -273,7 +300,7 @@ class ProcessHandler implements ProcessHandlerContract
     {
         $this->sources->each(function (string $source) {
             $warning = $this->warnings->get($source);
-            if ($warning !== null && $this->output->isDebug()) {
+            if ($warning !== null) {
                 $this->writeln()
                     ->writeln("Warning with {$source}: {$warning}", self::WARNING_FOREGROUND);
 
@@ -285,7 +312,7 @@ class ProcessHandler implements ProcessHandlerContract
                 $this->writeln()
                     ->writeln("Error with {$source}: {$error->getMessage()}", self::ERROR_FOREGROUND);
 
-                if ($this->output->isDebug()) {
+                if ($this->output->isVeryVerbose()) {
                     VarDumper::dump($error);
                 }
             }
@@ -297,10 +324,8 @@ class ProcessHandler implements ProcessHandlerContract
      */
     protected function writeErrorsDumpTip(): void
     {
-        if (! $this->output->isVeryVerbose()) {
-            $this->writeln()
-                ->writeln('Increase verbosity to see warnings or errors details.');
-        }
+        $this->writeln()
+            ->writeln('Increase verbosity to see errors details.');
     }
 
     /**
