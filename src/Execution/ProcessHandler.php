@@ -182,7 +182,7 @@ class ProcessHandler implements ProcessHandlerContract
             ->writeln($this->sources->count().' source(s) identified')
             ->writeln($this->successes->count().' success(es)', self::SUCCESS_FOREGROUND)
             ->writeln($this->warnings->count().' warning(s)', self::WARNING_FOREGROUND)
-            ->writeln($this->errors->count().' errors(s)', self::ERROR_FOREGROUND)
+            ->writeln($this->errors->count().' error(s)', self::ERROR_FOREGROUND)
             ->writeln()
             ->writeln("Execution time: {$this->getFormattedDuration($stopwatchEvent)}")
             ->writeln("Memory usage: {$this->getFormattedMemory($stopwatchEvent)}");
@@ -325,7 +325,7 @@ class ProcessHandler implements ProcessHandlerContract
     protected function writeErrorsDumpTip(): void
     {
         $this->writeln()
-            ->writeln('Increase verbosity to see errors details.');
+            ->writeln('Increase verbosity to see errors dump.');
     }
 
     /**

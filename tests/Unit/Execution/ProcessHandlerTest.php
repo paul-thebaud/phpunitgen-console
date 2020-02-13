@@ -263,7 +263,7 @@ class ProcessHandlerTest extends TestCase
             ->with('', true);
         $this->output->shouldReceive('write')
             ->once()
-            ->with('Increase verbosity to see errors details.', true);
+            ->with('Increase verbosity to see errors dump.', true);
 
         $dumped = false;
         VarDumper::setHandler(function () use (&$dumped) {
@@ -359,7 +359,7 @@ class ProcessHandlerTest extends TestCase
             ->with('<fg=yellow>0 warning(s)</>', true);
         $this->output->shouldReceive('write')
             ->once()
-            ->with('<fg=red>0 errors(s)</>', true);
+            ->with('<fg=red>0 error(s)</>', true);
         $this->output->shouldReceive('write')
             ->once()
             ->with('', true);
@@ -426,7 +426,7 @@ class ProcessHandlerTest extends TestCase
             ->with('', true);
         $this->output->shouldReceive('write')
             ->once()
-            ->with('Increase verbosity to see errors details.', true);
+            ->with('Increase verbosity to see errors dump.', true);
         $this->output->shouldReceive('write')
             ->once()
             ->with('', true);
@@ -447,7 +447,7 @@ class ProcessHandlerTest extends TestCase
             ->with('<fg=yellow>1 warning(s)</>', true);
         $this->output->shouldReceive('write')
             ->once()
-            ->with('<fg=red>1 errors(s)</>', true);
+            ->with('<fg=red>1 error(s)</>', true);
         $this->output->shouldReceive('write')
             ->once()
             ->with('', true);
@@ -538,7 +538,7 @@ class ProcessHandlerTest extends TestCase
             ->with('<fg=yellow>1 warning(s)</>', true);
         $this->output->shouldReceive('write')
             ->once()
-            ->with('<fg=red>1 errors(s)</>', true);
+            ->with('<fg=red>1 error(s)</>', true);
         $this->output->shouldReceive('write')
             ->once()
             ->with('', true);
