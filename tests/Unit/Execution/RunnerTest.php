@@ -191,6 +191,8 @@ class RunnerTest extends TestCase
             ->with('baz', $exception);
         $this->processHandler->shouldReceive('handleEnd')->once()
             ->withNoArgs();
+        $this->processHandler->shouldReceive('hasErrors')
+            ->andReturnTrue();
 
         $this->input->shouldReceive('getArgument')->once()
             ->with('source')
@@ -233,7 +235,7 @@ class RunnerTest extends TestCase
         $this->filesystem->shouldReceive('write')->once()
             ->with('tests/fooTest', Mockery::type('string'));
 
-        $this->assertSame(0, $this->runner->run($this->input, $this->output));
+        $this->assertSame(100, $this->runner->run($this->input, $this->output));
     }
 
     public function testItRunsWithSuccessWithOverrideAndBackup(): void
@@ -249,6 +251,10 @@ class RunnerTest extends TestCase
             ->with('foo', 'tests/fooTest');
         $this->processHandler->shouldReceive('handleEnd')->once()
             ->withNoArgs();
+        $this->processHandler->shouldReceive('hasErrors')
+            ->andReturnFalse();
+        $this->processHandler->shouldReceive('hasWarnings')
+            ->andReturnFalse();
 
         $this->input->shouldReceive('getArgument')->once()
             ->with('source')
@@ -280,5 +286,51 @@ class RunnerTest extends TestCase
             ->with('tests/fooTest');
 
         $this->assertSame(0, $this->runner->run($this->input, $this->output));
+    }
+
+    public function testItRunsWithWarning(): void
+    {
+        $config = ConsoleConfig::make();
+        $sources = new Collection(['foo']);
+
+        $this->processHandler->shouldReceive('initialize')->once()
+            ->with($this->output);
+        $this->processHandler->shouldReceive('handleStart')->once()
+            ->with($config, $sources);
+        $this->processHandler->shouldReceive('handleWarning')->once()
+            ->with('foo', 'cannot generate tests to tests/fooTest, file exists and overwriting is disabled');
+        $this->processHandler->shouldReceive('handleEnd')->once()
+            ->withNoArgs();
+        $this->processHandler->shouldReceive('hasErrors')
+            ->andReturnFalse();
+        $this->processHandler->shouldReceive('hasWarnings')
+            ->andReturnTrue();
+
+        $this->input->shouldReceive('getArgument')->once()
+            ->with('source')
+            ->andReturn('src');
+        $this->input->shouldReceive('getArgument')->once()
+            ->with('target')
+            ->andReturn('tests');
+
+        $this->targetResolver->shouldReceive('resolve')
+            ->with(Mockery::type(ClassFactory::class), 'foo', 'tests')
+            ->andReturn('tests/fooTest');
+
+        $this->configResolver->shouldReceive('resolve')->once()
+            ->with($this->input)
+            ->andReturn($config);
+        $this->sourcesResolver->shouldReceive('resolve')->once()
+            ->with($config, 'src')
+            ->andReturn($sources);
+        $this->filesystem->shouldReceive('read')->once()
+            ->with('foo')
+            ->andReturn('<?php class Foo {}');
+        $this->filesystem->shouldReceive('has')->once()
+            ->with('tests/fooTest')
+            ->andReturnTrue();
+        $this->filesystem->shouldReceive('write')->never();
+
+        $this->assertSame(101, $this->runner->run($this->input, $this->output));
     }
 }

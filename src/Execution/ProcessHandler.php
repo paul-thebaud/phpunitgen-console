@@ -189,6 +189,22 @@ class ProcessHandler implements ProcessHandlerContract
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function hasWarnings(): bool
+    {
+        return $this->warnings->isNotEmpty();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function hasErrors(): bool
+    {
+        return $this->errors->isNotEmpty();
+    }
+
+    /**
      * @return Collection|string[]
      */
     public function getSources()

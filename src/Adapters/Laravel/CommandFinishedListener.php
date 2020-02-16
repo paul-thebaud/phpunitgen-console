@@ -209,7 +209,6 @@ class CommandFinishedListener
     {
         return Str::startsWith($event->command, 'make:')
             && $event->exitCode === 0
-            && $event->input !== null
             && ! $event->input->getOption('help')
             && ! $event->input->getOption('version');
     }

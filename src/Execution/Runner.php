@@ -115,7 +115,7 @@ class Runner implements RunnerContract
 
         $this->processHandler->handleEnd();
 
-        return 0;
+        return $this->determineExitCode();
     }
 
     /**
@@ -246,5 +246,23 @@ class Runner implements RunnerContract
         }
 
         $this->processHandler->handleSuccess($sourcePath, $realTargetPath);
+    }
+
+    /**
+     * Determine the exit code to use depending on the process handler final state.
+     *
+     * @return int
+     */
+    protected function determineExitCode(): int
+    {
+        if ($this->processHandler->hasErrors()) {
+            return 100;
+        }
+
+        if ($this->processHandler->hasWarnings()) {
+            return 101;
+        }
+
+        return 0;
     }
 }

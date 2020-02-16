@@ -68,4 +68,18 @@ interface ProcessHandler
      * Handle the process end and write the report on output.
      */
     public function handleEnd(): void;
+
+    /**
+     * Returns true if the process handler recorded warnings.
+     *
+     * @return bool
+     */
+    public function hasWarnings(): bool;
+
+    /**
+     * Returns true if the process handler recorded errors.
+     *
+     * @return bool
+     */
+    public function hasErrors(): bool;
 }

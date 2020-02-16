@@ -558,4 +558,35 @@ class ProcessHandlerTest extends TestCase
 
         $this->assertTrue($dumped);
     }
+
+    public function testItChecksWarningsOrErrorsRecord(): void
+    {
+        $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+        $this->output->shouldReceive('isVeryVerbose')->withNoArgs()->andReturnTrue();
+
+        $this->output->shouldReceive('write')
+            ->once()
+            ->with('Starting process using ', false);
+        $this->output->shouldReceive('write')
+            ->once()
+            ->with('default config.', true);
+        $this->output->shouldReceive('write')
+            ->once()
+            ->with('', true);
+
+        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection());
+
+        $this->assertFalse($this->processHandler->hasWarnings());
+        $this->assertFalse($this->processHandler->hasErrors());
+
+        $this->processHandler->getWarnings()->put('foo', 'bar');
+
+        $this->assertTrue($this->processHandler->hasWarnings());
+        $this->assertFalse($this->processHandler->hasErrors());
+
+        $this->processHandler->getErrors()->put('foo', 'bar');
+
+        $this->assertTrue($this->processHandler->hasWarnings());
+        $this->assertTrue($this->processHandler->hasErrors());
+    }
 }
