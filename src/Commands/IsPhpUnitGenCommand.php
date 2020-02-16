@@ -55,7 +55,7 @@ trait IsPhpUnitGenCommand
             ->addArgument(
                 'target',
                 InputArgument::OPTIONAL,
-                'The target file/dir path where tests will be generated',
+                'The target dir path where tests will be generated',
                 'tests'
             );
     }

@@ -98,7 +98,7 @@ class Runner implements RunnerContract
         try {
             $config = $this->resolveConfig($input);
             $sources = $this->resolveSources($input, $config);
-            $target = $this->resolveTarget($input, $sources);
+            $target = $this->resolveTarget($input);
 
             $this->processHandler->handleStart($config, $sources);
 
@@ -168,20 +168,19 @@ class Runner implements RunnerContract
     }
 
     /**
-     * Resolve target from input and validate it can be used for sources.
+     * Resolve target from input and validate it is not an existing file.
      *
      * @param InputInterface $input
-     * @param Collection     $sources
      *
      * @return string
      */
-    protected function resolveTarget(InputInterface $input, Collection $sources): string
+    protected function resolveTarget(InputInterface $input): string
     {
         $targetPath = $input->getArgument('target');
 
-        if ($sources->count() > 1 && $this->filesystem->isFile($targetPath)) {
+        if ($this->filesystem->isFile($targetPath)) {
             throw new InvalidArgumentException(
-                'target must be a directory if there is multiple sources'
+                'target cannot be an existing file'
             );
         }
 

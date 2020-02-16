@@ -199,6 +199,9 @@ class CommandFinishedListenerTest extends TestCase
             ->with('phpunitgen.php')
             ->andReturn('<?php return [];');
         $this->filesystem->shouldReceive('isFile')
+            ->with('tests')
+            ->andReturnFalse();
+        $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/Post.php')
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
@@ -247,6 +250,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('read')
             ->with('phpunitgen.php')
             ->andReturn('<?php return [];');
+        $this->filesystem->shouldReceive('isFile')
+            ->with('tests')
+            ->andReturnFalse();
         $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/Post.php')
             ->andReturnTrue();
@@ -302,6 +308,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('read')
             ->with('phpunitgen.php')
             ->andReturn('<?php return [];');
+        $this->filesystem->shouldReceive('isFile')
+            ->with('tests')
+            ->andReturnFalse();
         $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/Post.php')
             ->andReturnTrue();
@@ -368,6 +377,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('read')
             ->with('phpunitgen.php')
             ->andReturn('<?php return [];');
+        $this->filesystem->shouldReceive('isFile')
+            ->with('tests')
+            ->andReturnFalse();
         $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/'.$expectedPath.'/Foo.php')
             ->andReturnTrue();
@@ -440,6 +452,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('read')
             ->with('phpunitgen.php')
             ->andReturn('<?php return [];');
+        $this->filesystem->shouldReceive('isFile')
+            ->with('tests')
+            ->andReturnFalse();
         $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/Post.php')
             ->andReturnTrue();

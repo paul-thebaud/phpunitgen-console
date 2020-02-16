@@ -141,14 +141,14 @@ class RunnerTest extends TestCase
         $this->assertSame(1, $this->runner->run($this->input, $this->output));
     }
 
-    public function testItRunsWithACriticalErrorWhenMultipleSourcesAndFileTarget(): void
+    public function testItRunsWithACriticalErrorWhenTargetIsAFile(): void
     {
         $this->processHandler->shouldReceive('initialize')->once()
             ->with($this->output);
         $this->processHandler->shouldReceive('handleCriticalError')->once()
             ->with(Mockery::on(function ($exception) {
                 return $exception instanceof InvalidArgumentException
-                    && $exception->getMessage() === 'target must be a directory if there is multiple sources';
+                    && $exception->getMessage() === 'target cannot be an existing file';
             }));
 
         $config = ConsoleConfig::make();
@@ -273,6 +273,9 @@ class RunnerTest extends TestCase
         $this->sourcesResolver->shouldReceive('resolve')->once()
             ->with($config, 'src')
             ->andReturn($sources);
+        $this->filesystem->shouldReceive('isFile')->once()
+            ->with('tests')
+            ->andReturnFalse();
         $this->filesystem->shouldReceive('read')->once()
             ->with('foo')
             ->andReturn('<?php class Foo {}');
@@ -323,6 +326,9 @@ class RunnerTest extends TestCase
         $this->sourcesResolver->shouldReceive('resolve')->once()
             ->with($config, 'src')
             ->andReturn($sources);
+        $this->filesystem->shouldReceive('isFile')->once()
+            ->with('tests')
+            ->andReturnFalse();
         $this->filesystem->shouldReceive('read')->once()
             ->with('foo')
             ->andReturn('<?php class Foo {}');
