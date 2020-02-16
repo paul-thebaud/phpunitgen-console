@@ -80,7 +80,7 @@ class CommandsTest extends TestCase
 
         $output = $commandTester->getDisplay();
 
-        $this->assertSame(0, $commandTester->getStatusCode());
+        $this->assertSame(100, $commandTester->getStatusCode());
         $this->assertStringContainsString('Starting process using config file at \'phpunitgen.php\'.', $output);
         $this->assertStringContainsString('.E', $output);
         $this->assertStringContainsString('(2 / 2)', $output);
