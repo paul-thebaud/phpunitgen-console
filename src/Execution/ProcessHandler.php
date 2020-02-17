@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Execution;
 
+use PhpUnitGen\Console\Commands\HasOutput;
 use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
 use PhpUnitGen\Console\Contracts\Execution\ProcessHandler as ProcessHandlerContract;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -22,6 +23,8 @@ use Tightenco\Collect\Support\Collection;
  */
 class ProcessHandler implements ProcessHandlerContract
 {
+    use HasOutput;
+
     /**
      * The name of the process on stopwatch.
      */
@@ -33,29 +36,9 @@ class ProcessHandler implements ProcessHandlerContract
     protected const SOURCES_PER_LINE = 50;
 
     /**
-     * The foreground used for success output.
-     */
-    protected const SUCCESS_FOREGROUND = 'green';
-
-    /**
-     * The foreground used for warning output.
-     */
-    protected const WARNING_FOREGROUND = 'yellow';
-
-    /**
-     * The foreground used for error output.
-     */
-    protected const ERROR_FOREGROUND = 'red';
-
-    /**
      * @var Stopwatch
      */
     protected $stopwatch;
-
-    /**
-     * @var OutputInterface
-     */
-    protected $output;
 
     /**
      * @var Collection|string[] The identified sources.
@@ -134,7 +117,7 @@ class ProcessHandler implements ProcessHandlerContract
     {
         $this->warnings->put($absoluteSourcePath, $warningMessage);
 
-        $this->writeProgress('W', self::WARNING_FOREGROUND);
+        $this->writeProgress('W', self::$WARNING_FOREGROUND);
     }
 
     /**
@@ -144,7 +127,7 @@ class ProcessHandler implements ProcessHandlerContract
     {
         $this->errors->put($absoluteSourcePath, $exception);
 
-        $this->writeProgress('E', self::ERROR_FOREGROUND);
+        $this->writeProgress('E', self::$ERROR_FOREGROUND);
     }
 
     /**
@@ -153,7 +136,7 @@ class ProcessHandler implements ProcessHandlerContract
     public function handleCriticalError(Throwable $exception): void
     {
         $this->writeln()
-            ->writeln('Critical error during execution: '.$exception->getMessage(), self::ERROR_FOREGROUND);
+            ->error('Critical error during execution: '.$exception->getMessage());
 
         if ($this->output->isVeryVerbose()) {
             VarDumper::dump($exception);
@@ -180,9 +163,9 @@ class ProcessHandler implements ProcessHandlerContract
             ->writeln('Generation is finished!')
             ->writeln()
             ->writeln($this->sources->count().' source(s) identified')
-            ->writeln($this->successes->count().' success(es)', self::SUCCESS_FOREGROUND)
-            ->writeln($this->warnings->count().' warning(s)', self::WARNING_FOREGROUND)
-            ->writeln($this->errors->count().' error(s)', self::ERROR_FOREGROUND)
+            ->success($this->successes->count().' success(es)')
+            ->warning($this->warnings->count().' warning(s)')
+            ->error($this->errors->count().' error(s)')
             ->writeln()
             ->writeln("Execution time: {$this->getFormattedDuration($stopwatchEvent)}")
             ->writeln("Memory usage: {$this->getFormattedMemory($stopwatchEvent)}");
@@ -237,43 +220,6 @@ class ProcessHandler implements ProcessHandlerContract
     }
 
     /**
-     * Write the given string to output and line jump.
-     *
-     * @param string      $string
-     * @param string|null $foreground
-     *
-     * @return $this
-     */
-    protected function writeln(string $string = '', ?string $foreground = null): self
-    {
-        return $this->write($string, $foreground, true);
-    }
-
-    /**
-     * Write the given string to output.
-     *
-     * @param string      $string
-     * @param string|null $foreground
-     * @param bool        $newLine
-     *
-     * @return static
-     */
-    protected function write(string $string = '', ?string $foreground = null, bool $newLine = false): self
-    {
-        if ($this->output->isQuiet()) {
-            return $this;
-        }
-
-        if ($foreground !== null) {
-            $string = "<fg={$foreground}>{$string}</>";
-        }
-
-        $this->output->write($string, $newLine);
-
-        return $this;
-    }
-
-    /**
      * Write the progress with a char and a foreground on output.
      *
      * @param string      $char
@@ -318,7 +264,7 @@ class ProcessHandler implements ProcessHandlerContract
             $warning = $this->warnings->get($source);
             if ($warning !== null) {
                 $this->writeln()
-                    ->writeln("Warning with {$source}: {$warning}", self::WARNING_FOREGROUND);
+                    ->warning("Warning with {$source}: {$warning}");
 
                 return;
             }
@@ -326,7 +272,7 @@ class ProcessHandler implements ProcessHandlerContract
             $error = $this->errors->get($source);
             if ($error !== null) {
                 $this->writeln()
-                    ->writeln("Error with {$source}: {$error->getMessage()}", self::ERROR_FOREGROUND);
+                    ->error("Error with {$source}: {$error->getMessage()}");
 
                 if ($this->output->isVeryVerbose()) {
                     VarDumper::dump($error);

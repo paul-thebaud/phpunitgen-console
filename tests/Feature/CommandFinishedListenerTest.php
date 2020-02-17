@@ -185,8 +185,8 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnFalse();
         $this->output->shouldReceive('isQuiet')
             ->andReturnFalse();
-        $this->output->shouldReceive('writeln')
-            ->with('<fg=green>Test generated for "Post".</>');
+        $this->output->shouldReceive('write')
+            ->with('<fg=green>Test generated for "Post".</>', true);
 
         $this->application->shouldReceive('basePath')
             ->with('app/Post.php')
@@ -238,7 +238,7 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnFalse();
         $this->output->shouldReceive('isQuiet')
             ->andReturnTrue();
-        $this->output->shouldReceive('writeln')->never();
+        $this->output->shouldReceive('write')->never();
 
         $this->application->shouldReceive('basePath')
             ->with('app/Post.php')
@@ -290,10 +290,10 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnFalse();
         $this->output->shouldReceive('isQuiet')
             ->andReturnFalse();
-        $this->output->shouldReceive('writeln')
-            ->with('<fg=green>Test generated for "Post".</>');
-        $this->output->shouldReceive('writeln')
-            ->with('<fg=green>Test generated for "Http/Controllers/PostController".</>');
+        $this->output->shouldReceive('write')
+            ->with('<fg=green>Test generated for "Post".</>', true);
+        $this->output->shouldReceive('write')
+            ->with('<fg=green>Test generated for "Http/Controllers/PostController".</>', true);
 
         $this->application->shouldReceive('basePath')
             ->with('app/Post.php')
@@ -364,8 +364,8 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnFalse();
         $this->output->shouldReceive('isQuiet')
             ->andReturnFalse();
-        $this->output->shouldReceive('writeln')
-            ->with('<fg=green>Test generated for "'.$expectedPath.'/Foo".</>');
+        $this->output->shouldReceive('write')
+            ->with('<fg=green>Test generated for "'.$expectedPath.'/Foo".</>', true);
 
         $this->application->shouldReceive('basePath')
             ->with('app/'.$expectedPath.'/Foo.php')
@@ -439,8 +439,8 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnFalse();
         $this->output->shouldReceive('isQuiet')
             ->andReturnFalse();
-        $this->output->shouldReceive('writeln')
-            ->with('<fg=red>Test generation failed for "Post".</>');
+        $this->output->shouldReceive('write')
+            ->with('<fg=red>Test generation failed for "Post".</>', true);
 
         $this->application->shouldReceive('basePath')
             ->with('app/Post.php')

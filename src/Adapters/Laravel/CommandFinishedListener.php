@@ -8,6 +8,7 @@ use Illuminate\Console\Events\CommandFinished;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use PhpUnitGen\Console\Commands\HasOutput;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Execution\Runner;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -24,6 +25,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class CommandFinishedListener
 {
+    use HasOutput;
+
     /**
      * @var Application
      */
@@ -72,6 +75,8 @@ class CommandFinishedListener
      */
     public function handle(CommandFinished $event): void
     {
+        $this->output = $event->output;
+
         if (! $this->shouldHandleEvent($event)) {
             return;
         }
@@ -90,10 +95,10 @@ class CommandFinishedListener
         $sources->each(function (string $relativeSource) use ($event) {
             $returnCode = $this->runner->run(
                 $this->createRunnerInput($relativeSource),
-                $this->createRunnerOutput($event->output)
+                $this->createRunnerOutput()
             );
 
-            $this->writeRunnerResult($event->output, $relativeSource, $returnCode);
+            $this->writeRunnerResult($relativeSource, $returnCode);
         });
     }
 
@@ -121,75 +126,28 @@ class CommandFinishedListener
     /**
      * Create the runner output.
      *
-     * @param OutputInterface $eventOutput
-     *
      * @return OutputInterface
      */
-    protected function createRunnerOutput(OutputInterface $eventOutput): OutputInterface
+    protected function createRunnerOutput(): OutputInterface
     {
-        return $eventOutput->isVeryVerbose() ? $eventOutput : new NullOutput();
+        return $this->output->isVeryVerbose() ? $this->output : new NullOutput();
     }
 
     /**
      * Write the runner result to output.
      *
-     * @param OutputInterface $eventOutput
-     * @param string          $relativeSource
-     * @param int             $returnCode
+     * @param string $relativeSource
+     * @param int    $returnCode
      */
-    protected function writeRunnerResult(OutputInterface $eventOutput, string $relativeSource, int $returnCode): void
+    protected function writeRunnerResult(string $relativeSource, int $returnCode): void
     {
         if ($returnCode === 0) {
-            $this->success($eventOutput, "Test generated for \"{$relativeSource}\".");
+            $this->success("Test generated for \"{$relativeSource}\".");
 
             return;
         }
 
-        $this->error($eventOutput, "Test generation failed for \"{$relativeSource}\".");
-    }
-
-    /*
-     |--------------------------------------------------------------------------
-     | Output.
-     |--------------------------------------------------------------------------
-     */
-
-    /**
-     * Write a success message.
-     *
-     * @param OutputInterface $output
-     * @param string          $message
-     */
-    protected function success(OutputInterface $output, string $message): void
-    {
-        $this->writeln($output, $message, 'green');
-    }
-
-    /**
-     * Write an error message.
-     *
-     * @param OutputInterface $output
-     * @param string          $message
-     */
-    protected function error(OutputInterface $output, string $message): void
-    {
-        $this->writeln($output, $message, 'red');
-    }
-
-    /**
-     * Write a message with the given foreground on output.
-     *
-     * @param OutputInterface $output
-     * @param string          $message
-     * @param string          $foreground
-     */
-    protected function writeln(OutputInterface $output, string $message, string $foreground): void
-    {
-        if ($output->isQuiet()) {
-            return;
-        }
-
-        $output->writeln("<fg={$foreground}>{$message}</>");
+        $this->error("Test generation failed for \"{$relativeSource}\".");
     }
 
     /*

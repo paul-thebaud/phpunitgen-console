@@ -20,6 +20,7 @@ use Tightenco\Collect\Support\Collection;
  * Class ProcessHandlerTest.
  *
  * @covers \PhpUnitGen\Console\Execution\ProcessHandler
+ * @covers \PhpUnitGen\Console\Commands\HasOutput
  */
 class ProcessHandlerTest extends TestCase
 {
