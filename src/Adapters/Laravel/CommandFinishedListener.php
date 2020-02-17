@@ -92,7 +92,7 @@ class CommandFinishedListener
             return;
         }
 
-        $sources->each(function (string $relativeSource) use ($event) {
+        $sources->each(function (string $relativeSource) {
             $returnCode = $this->runner->run(
                 $this->createRunnerInput($relativeSource),
                 $this->createRunnerOutput()
