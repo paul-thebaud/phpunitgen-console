@@ -8,8 +8,7 @@ git:
 addons:
   sonarcloud:
     organization: "paul-thebaud-github"
-    token:
-      secure: "$SONAR_TOKEN"
+    token: ${SONAR_TOKEN}
 
 cache:
   directories:
