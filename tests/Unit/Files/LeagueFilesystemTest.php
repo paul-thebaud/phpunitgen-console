@@ -246,4 +246,23 @@ class LeagueFilesystemTest extends TestCase
         $this->assertTrue($this->leagueFilesystem->has('app/file'));
         $this->assertFalse($this->leagueFilesystem->has('/app/file'));
     }
+
+    public function testItIsCompatibleWithWindowsPaths(): void
+    {
+        $windowsLeagueFilesystemC = new LeagueFilesystem($this->filesystem, 'C:\Users\John Doe\Documents');
+
+        $this->filesystem->shouldReceive('has')->once()
+            ->with('/Users/John Doe/Documents/app/file')
+            ->andReturnTrue();
+
+        $this->assertTrue($windowsLeagueFilesystemC->has('app\file'));
+
+        $windowsLeagueFilesystemD = new LeagueFilesystem($this->filesystem, 'D:\Users\John Doe\Documents');
+
+        $this->filesystem->shouldReceive('has')->once()
+            ->with('/app/file')
+            ->andReturnTrue();
+
+        $this->assertTrue($windowsLeagueFilesystemD->has('C:\app\file'));
+    }
 }

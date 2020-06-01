@@ -41,7 +41,7 @@ class LeagueFilesystem implements FilesystemContract
     public function __construct(FilesystemInterface $filesystem, string $currentWorkingDirectory)
     {
         $this->filesystem = $filesystem;
-        $this->currentWorkingDirectory = $currentWorkingDirectory;
+        $this->currentWorkingDirectory = $this->getCleanedPath($currentWorkingDirectory);
     }
 
     /**
@@ -181,11 +181,25 @@ class LeagueFilesystem implements FilesystemContract
      */
     protected function getAbsolutePath(string $path): string
     {
+        $path = $this->getCleanedPath($path);
+
         if (Str::startsWith('/', $path)) {
             return $path;
         }
 
         return $this->getRoot().$path;
+    }
+
+    /**
+     * Get the path with "\" replaced with "/".
+     *
+     * @param string $path
+     *
+     * @return string
+     */
+    protected function getCleanedPath(string $path): string
+    {
+        return str_replace('\\', '/', preg_replace('/^[A-Z]:/', '', $path, 1));
     }
 
     /**
