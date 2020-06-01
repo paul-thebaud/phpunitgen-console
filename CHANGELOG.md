@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.1.0
+
+**Added**
+
+- Compatibility with Windows file system on `LeagueFilesystem` class.
+
 ## 1.0.0-alpha3
 
 **Added**
