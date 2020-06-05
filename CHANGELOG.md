@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.2.0
+
+**Added**
+
+- Support for PHP `7.1+` (instead of `7.2+`) and Laravel `5.8+` (instead of `6.0+`).
+
 ## 1.1.0
 
 **Added**
