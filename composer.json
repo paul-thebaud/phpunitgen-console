@@ -35,7 +35,7 @@
     "symfony/console": "^4.4|^5.0",
     "symfony/stopwatch": "^4.3|^5.0",
     "symfony/yaml": "^4.3|^5.0",
-    "tightenco/collect": "^6.0"
+    "tightenco/collect": "^5.8|^6.0|^7.0"
   },
   "require-dev": {
     "mockery/mockery": "^1.3",
