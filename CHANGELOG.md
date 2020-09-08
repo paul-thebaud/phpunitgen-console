@@ -1,5 +1,12 @@
 # Change Log
 
+## Not released yet
+
+**Added**
+
+- Support for `tightenco/collect` `8`.
+- Support for Laravel `8` (and `Models` directory).
+
 ## 1.2.1
 
 **Changed**

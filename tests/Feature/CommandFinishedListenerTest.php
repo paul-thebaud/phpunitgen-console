@@ -69,7 +69,8 @@ class CommandFinishedListenerTest extends TestCase
             $this->application,
             $container->get(ConfigResolver::class),
             $container->get(PhpUnitGenCommand::class),
-            $container->get(Runner::class)
+            $container->get(Runner::class),
+            $container->get(Filesystem::class)
         );
     }
 
@@ -201,6 +202,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('isFile')
             ->with('tests')
             ->andReturnFalse();
+        $this->filesystem->shouldReceive('has')
+            ->with('/john/app/Post.php')
+            ->andReturnTrue();
         $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/Post.php')
             ->andReturnTrue();
@@ -253,6 +257,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('isFile')
             ->with('tests')
             ->andReturnFalse();
+        $this->filesystem->shouldReceive('has')
+            ->with('/john/app/Post.php')
+            ->andReturnTrue();
         $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/Post.php')
             ->andReturnTrue();
@@ -311,6 +318,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('isFile')
             ->with('tests')
             ->andReturnFalse();
+        $this->filesystem->shouldReceive('has')
+            ->with('/john/app/Post.php')
+            ->andReturnTrue();
         $this->filesystem->shouldReceive('isFile')
             ->with('/john/app/Post.php')
             ->andReturnTrue();
@@ -337,6 +347,65 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnFalse();
         $this->filesystem->shouldReceive('write')
             ->with('tests/Feature/Http/Controllers/PostControllerTest.php', Mockery::type('string'));
+
+        $this->commandFinishedListener->handle($event);
+    }
+
+    public function testItRunsWithModelWithoutControllerOrErrorUsingLaravel8Style(): void
+    {
+        $event = new CommandFinished('make:model', $this->input, $this->output, 0);
+
+        $this->input->shouldReceive('getOption')
+            ->with('help')
+            ->andReturnFalse();
+        $this->input->shouldReceive('getOption')
+            ->with('version')
+            ->andReturnFalse();
+        $this->input->shouldReceive('getArgument')
+            ->with('name')
+            ->andReturn('Post');
+        $this->input->shouldReceive('getOption')
+            ->with('controller')
+            ->andReturnFalse();
+        $this->output->shouldReceive('isVeryVerbose')
+            ->andReturnFalse();
+        $this->output->shouldReceive('isQuiet')
+            ->andReturnFalse();
+        $this->output->shouldReceive('write')
+            ->with('<fg=green>Test generated for "Models/Post".</>', true);
+
+        $this->application->shouldReceive('basePath')
+            ->with('app/Post.php')
+            ->andReturn('/john/app/Post.php');
+        $this->application->shouldReceive('basePath')
+            ->with('app/Models/Post.php')
+            ->andReturn('/john/app/Models/Post.php');
+
+        $this->filesystem->shouldReceive('has')
+            ->with('phpunitgen.php')
+            ->andReturnTrue();
+        $this->filesystem->shouldReceive('read')
+            ->with('phpunitgen.php')
+            ->andReturn('<?php return [];');
+        $this->filesystem->shouldReceive('isFile')
+            ->with('tests')
+            ->andReturnFalse();
+        $this->filesystem->shouldReceive('has')
+            ->with('/john/app/Post.php')
+            ->andReturnFalse();
+        $this->filesystem->shouldReceive('isFile')
+            ->with('/john/app/Models/Post.php')
+            ->andReturnTrue();
+        $this->filesystem->shouldReceive('read')
+            ->with('/john/app/Models/Post.php')
+            ->andReturn('<?php class Post {}');
+        $this->filesystem->shouldReceive('getRoot')
+            ->andReturn('/john/');
+        $this->filesystem->shouldReceive('has')
+            ->with('tests/Unit/Models/PostTest.php')
+            ->andReturnFalse();
+        $this->filesystem->shouldReceive('write')
+            ->with('tests/Unit/Models/PostTest.php', Mockery::type('string'));
 
         $this->commandFinishedListener->handle($event);
     }
@@ -452,6 +521,9 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('read')
             ->with('phpunitgen.php')
             ->andReturn('<?php return [];');
+        $this->filesystem->shouldReceive('has')
+            ->with('/john/app/Post.php')
+            ->andReturnTrue();
         $this->filesystem->shouldReceive('isFile')
             ->with('tests')
             ->andReturnFalse();

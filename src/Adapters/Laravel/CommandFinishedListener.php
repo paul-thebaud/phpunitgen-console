@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use PhpUnitGen\Console\Commands\HasOutput;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Execution\Runner;
+use PhpUnitGen\Console\Contracts\Files\Filesystem;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
@@ -48,23 +49,31 @@ class CommandFinishedListener
     protected $runner;
 
     /**
+     * @var Filesystem
+     */
+    protected $filesystem;
+
+    /**
      * CommandFinishedListener constructor.
      *
      * @param Application       $application
      * @param ConfigResolver    $configResolver
      * @param PhpUnitGenCommand $phpUnitGenCommand
      * @param Runner            $runner
+     * @param Filesystem        $filesystem
      */
     public function __construct(
         Application $application,
         ConfigResolver $configResolver,
         PhpUnitGenCommand $phpUnitGenCommand,
-        Runner $runner
+        Runner $runner,
+        Filesystem $filesystem
     ) {
         $this->application = $application;
         $this->configResolver = $configResolver;
         $this->phpUnitGenCommand = $phpUnitGenCommand;
         $this->runner = $runner;
+        $this->filesystem = $filesystem;
     }
 
     /**
@@ -256,6 +265,10 @@ class CommandFinishedListener
      */
     protected function addSourcesForModel(Collection $sources, string $name, InputInterface $input)
     {
+        if (! $this->filesystem->has($this->getAbsoluteSource($name))) {
+            $name = 'Models/'.$name;
+        }
+
         $sources->add($name);
 
         if ($input->getOption('controller')) {

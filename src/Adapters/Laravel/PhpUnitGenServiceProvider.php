@@ -11,6 +11,7 @@ use Illuminate\Support\ServiceProvider as BaseServiceProvider;
 use PhpUnitGen\Console\Container\ConsoleContainerFactory;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Execution\Runner;
+use PhpUnitGen\Console\Contracts\Files\Filesystem;
 
 /**
  * Class PhpUnitGenServiceProvider.
@@ -39,7 +40,8 @@ class PhpUnitGenServiceProvider extends BaseServiceProvider
                 $application,
                 $consoleContainer->get(ConfigResolver::class),
                 $consoleContainer->get(PhpUnitGenCommand::class),
-                $consoleContainer->get(Runner::class)
+                $consoleContainer->get(Runner::class),
+                $consoleContainer->get(Filesystem::class)
             );
         });
     }
