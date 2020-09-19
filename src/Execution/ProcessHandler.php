@@ -90,14 +90,16 @@ class ProcessHandler implements ProcessHandlerContract
         $this->warnings = new Collection();
         $this->errors = new Collection();
 
+        $startingMessage = 'Starting process using ';
         $configPath = $config->getPath();
-        $this->write('Starting process using ');
         if ($configPath) {
-            $this->writeln("config file at '{$configPath}'.");
+            $startingMessage .= "config file at '{$configPath}'.";
         } else {
-            $this->writeln('default config.');
+            $startingMessage .= 'default config.';
         }
-        $this->writeln();
+
+        $this->writeln($startingMessage)
+            ->writeln();
     }
 
     /**
