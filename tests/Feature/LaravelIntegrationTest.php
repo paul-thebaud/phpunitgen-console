@@ -32,8 +32,8 @@ class LaravelIntegrationTest extends TestCase
         File::put(app_path('Http/Controllers/Dummy.php'), "<?php\nnamespace App\Http\Controllers;\nclass Dummy {}");
 
         $this->artisan('phpunitgen', ['source' => app_path('Http/Controllers/Dummy.php')])
-            ->expectsOutput("Starting process using default config.")
-            ->expectsOutput("Generation is finished!")
+            ->expectsOutput('Starting process using default config.')
+            ->expectsOutput('Generation is finished!')
             ->expectsOutput('1 source(s) identified')
             ->expectsOutput('1 success(es)')
             ->expectsOutput('0 warning(s)')
@@ -48,8 +48,8 @@ class LaravelIntegrationTest extends TestCase
         $this->cleanUpGeneratedFiles();
 
         $this->artisan('make:controller', ['name' => 'Dummy'])
-            ->expectsOutput("Controller created successfully.")
-            ->expectsOutput("Test generated for \"Http/Controllers/Dummy\".")
+            ->expectsOutput('Controller created successfully.')
+            ->expectsOutput('Test generated for "Http/Controllers/Dummy".')
             ->assertExitCode(0);
 
         $this->assertTrue(File::exists(app_path('Http/Controllers/Dummy.php')));

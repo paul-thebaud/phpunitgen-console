@@ -194,13 +194,13 @@ class ProcessHandlerTest extends TestCase
 
         $sources = new Collection();
         for ($i = 0; $i < 50; $i++) {
-            $sources->add('foo' . $i);
+            $sources->add('foo'.$i);
         }
 
         $this->processHandler->handleStart(ConsoleConfig::make(), $sources);
 
         for ($i = 0; $i < 49; $i++) {
-            $this->processHandler->getSuccesses()->add('foo' . $i);
+            $this->processHandler->getSuccesses()->add('foo'.$i);
         }
 
         $this->processHandler->handleSuccess('foo', 'bar');
@@ -280,13 +280,13 @@ class ProcessHandlerTest extends TestCase
 
         $sources = new Collection();
         for ($i = 0; $i < 45; $i++) {
-            $sources->add('foo' . $i);
+            $sources->add('foo'.$i);
         }
 
         $this->processHandler->handleStart(ConsoleConfig::make(), $sources);
 
         for ($i = 0; $i < 44; $i++) {
-            $this->processHandler->getSuccesses()->add('foo' . $i);
+            $this->processHandler->getSuccesses()->add('foo'.$i);
         }
 
         $this->processHandler->handleSuccess('foo', 'bar');
