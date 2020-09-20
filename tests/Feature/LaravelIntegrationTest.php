@@ -29,6 +29,10 @@ class LaravelIntegrationTest extends TestCase
     {
         $this->cleanUpGeneratedFiles();
 
+        if (! File::exists(app_path('Http/Controllers'))) {
+            File::makeDirectory(app_path('Http/Controllers'));
+        }
+
         File::put(app_path('Http/Controllers/Dummy.php'), "<?php\nnamespace App\Http\Controllers;\nclass Dummy {}");
 
         $this->artisan('phpunitgen', ['source' => app_path('Http/Controllers/Dummy.php')])
