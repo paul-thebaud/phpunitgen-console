@@ -18,6 +18,18 @@ class LaravelIntegrationTest extends TestCase
     /**
      * {@inheritdoc}
      */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        if (! File::exists(app_path('Http/Controllers'))) {
+            File::makeDirectory(app_path('Http/Controllers'), 0777, true);
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getPackageProviders($app)
     {
         return [
@@ -28,10 +40,6 @@ class LaravelIntegrationTest extends TestCase
     public function testArtisanCommandCallWorks(): void
     {
         $this->cleanUpGeneratedFiles();
-
-        if (! File::exists(app_path('Http/Controllers'))) {
-            File::makeDirectory(app_path('Http/Controllers'));
-        }
 
         File::put(app_path('Http/Controllers/Dummy.php'), "<?php\nnamespace App\Http\Controllers;\nclass Dummy {}");
 
