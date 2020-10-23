@@ -35,9 +35,9 @@ class LaravelIntegrationTest extends TestCase
      */
     protected function tearDown(): void
     {
-        parent::tearDown();
-
         $this->deleteAffectedDirectories();
+
+        parent::tearDown();
     }
 
     /**
