@@ -77,7 +77,7 @@ class LaravelIntegrationTest extends TestCase
             ->expectsOutput('0 error(s)')
             ->assertExitCode(0);
 
-        $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/Http/Controllers/Dummy.php'));
+        $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
     }
 
     public function testArtisanMakeListenerWorks(): void
@@ -89,7 +89,7 @@ class LaravelIntegrationTest extends TestCase
             //->expectsOutput('Test generated for "Http/Controllers/Dummy".')
             ->assertExitCode(0);
 
-        $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/Http/Controllers/Dummy.php'));
+        $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
         $this->assertTrue(File::exists(app_path('Http/Controllers/Dummy.php')));
     }
 }
