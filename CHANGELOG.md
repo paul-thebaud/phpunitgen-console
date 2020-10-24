@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.3.1
+
+**Removed**
+
+- Package `ocramius/package-versions`: this avoids the package to break on Composer 2 with PHP 7.1.
+
 ## 1.3.0
 
 **Added**
