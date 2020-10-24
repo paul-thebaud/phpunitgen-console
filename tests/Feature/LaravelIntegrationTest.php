@@ -18,6 +18,45 @@ class LaravelIntegrationTest extends TestCase
     /**
      * {@inheritdoc}
      */
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->deleteAffectedDirectories();
+
+        File::makeDirectory(app_path('Http/Controllers'), 0777, true);
+        // Since PhpUnitGen uses relative path, tests will be generated in
+        // current tests/Feature directory.
+        File::makeDirectory(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers', 0777, true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function tearDown(): void
+    {
+        $this->deleteAffectedDirectories();
+
+        parent::tearDown();
+    }
+
+    /**
+     * Delete the directories used in tests.
+     */
+    protected function deleteAffectedDirectories(): void
+    {
+        if (File::exists(app_path('Http/Controllers'))) {
+            File::deleteDirectory(app_path('Http/Controllers'));
+        }
+
+        if (File::exists(__DIR__.'/orchestra')) {
+            File::deleteDirectory(__DIR__.'/orchestra');
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getPackageProviders($app)
     {
         return [
@@ -27,12 +66,6 @@ class LaravelIntegrationTest extends TestCase
 
     public function testArtisanCommandCallWorks(): void
     {
-        $this->cleanUpGeneratedFiles();
-
-        if (! File::exists(app_path('Http/Controllers'))) {
-            File::makeDirectory(app_path('Http/Controllers'));
-        }
-
         File::put(app_path('Http/Controllers/Dummy.php'), "<?php\nnamespace App\Http\Controllers;\nclass Dummy {}");
 
         $this->artisan('phpunitgen', ['source' => app_path('Http/Controllers/Dummy.php')])
@@ -44,36 +77,19 @@ class LaravelIntegrationTest extends TestCase
             ->expectsOutput('0 error(s)')
             ->assertExitCode(0);
 
-        $this->cleanUpGeneratedFiles();
+        $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
     }
 
     public function testArtisanMakeListenerWorks(): void
     {
-        $this->cleanUpGeneratedFiles();
-
         $this->artisan('make:controller', ['name' => 'Dummy'])
             ->expectsOutput('Controller created successfully.')
-            ->expectsOutput('Test generated for "Http/Controllers/Dummy".')
+            // We won't validate PhpUnitGen written an output, because the
+            // Laravel event output is not a testing one when using 5.8.
+            //->expectsOutput('Test generated for "Http/Controllers/Dummy".')
             ->assertExitCode(0);
 
+        $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
         $this->assertTrue(File::exists(app_path('Http/Controllers/Dummy.php')));
-
-        $this->cleanUpGeneratedFiles();
-    }
-
-    /**
-     * Clean up the generated files.
-     */
-    protected function cleanUpGeneratedFiles(): void
-    {
-        if (File::exists(app_path('Http/Controllers/Dummy.php'))) {
-            File::delete(app_path('Http/Controllers/Dummy.php'));
-        }
-
-        // Since PhpUnitGen uses relative path, tests will be generated in
-        // current tests/Feature directory.
-        if (File::exists(__DIR__.'/orchestra')) {
-            File::deleteDirectory(__DIR__.'/orchestra');
-        }
     }
 }
