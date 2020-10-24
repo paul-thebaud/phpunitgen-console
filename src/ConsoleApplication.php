@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console;
 
-use PackageVersions\Versions;
 use PhpUnitGen\Console\Commands\RunCommand;
 use PhpUnitGen\Console\Container\ConsoleContainerFactory;
-use PhpUnitGen\Core\Helpers\Str;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,6 +21,11 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ConsoleApplication extends Application
 {
     /**
+     * The current phpunitgen-console version.
+     */
+    public const VERSION = '1.3.1';
+
+    /**
      * @var ContainerInterface
      */
     protected $container;
@@ -36,7 +39,7 @@ class ConsoleApplication extends Application
     {
         parent::__construct(
             'PhpUnitGen',
-            "{$this->getConsoleVersion()} (core version: {$this->getCoreVersion()})"
+            self::VERSION
         );
 
         $this->add($container->get(RunCommand::class));
@@ -64,39 +67,5 @@ class ConsoleApplication extends Application
         }
 
         return parent::doRun($input, $output);
-    }
-
-    /**
-     * Get the PhpUnitGen Console version.
-     *
-     * @return string
-     */
-    protected function getConsoleVersion(): string
-    {
-        return $this->getPackagistVersion('phpunitgen/console');
-    }
-
-    /**
-     * Get the PhpUnitGen Core version.
-     *
-     * @return string
-     */
-    protected function getCoreVersion(): string
-    {
-        return $this->getPackagistVersion('phpunitgen/core');
-    }
-
-    /**
-     * Get the given package version.
-     *
-     * @param string $package
-     *
-     * @return string
-     */
-    protected function getPackagistVersion(string $package): string
-    {
-        $version = Versions::getVersion($package);
-
-        return Str::beforeLast('@', $version);
     }
 }

@@ -31,9 +31,6 @@ class ConsoleApplicationTest extends TestCase
 
     public function testRun(): void
     {
-        $coreVersion = Str::beforeLast('@', Versions::getVersion('phpunitgen/core'));
-        $consoleVersion = Str::beforeLast('@', Versions::getVersion('phpunitgen/console'));
-
         $container = Mockery::mock(ContainerInterface::class);
         $runner = Mockery::mock(Runner::class);
         $command = Mockery::mock(new RunCommand($runner))->makePartial();
@@ -47,7 +44,7 @@ class ConsoleApplicationTest extends TestCase
         $output->shouldReceive(['isQuiet' => false]);
         $output->shouldReceive('writeln')
             ->once()
-            ->with("PhpUnitGen <info>{$consoleVersion} (core version: {$coreVersion})</info>\n");
+            ->with("PhpUnitGen <info>1.3.1</info>\n");
 
         $runner->shouldReceive('run')
             ->with($input, $output)
