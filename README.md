@@ -9,6 +9,16 @@
 <a href="https://sonarcloud.io/dashboard?id=paul-thebaud_phpunitgen-console" target="_blank"><img src="https://sonarcloud.io/api/project_badges/measure?project=paul-thebaud_phpunitgen-console&metric=coverage" alt="Coverage"></a>
 </p>
 
+## Installation
+
+The CLI tool can be installed using:
+```bash
+composer require --dev phpunitgen/console
+```
+
+Detailed information and webapp version are available at
+[https://phpunitgen.io](https://phpunitgen.io).
+
 ## About PhpUnitGen
 
 > **Note:** this repository contains the console code of PhpUnitGen. If you want
