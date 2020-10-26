@@ -29,7 +29,7 @@ Detailed information and webapp version are available at
 PhpUnitGen is an online and command line tool to generate your unit tests'
 skeletons on your projects.
 
-- [How does it work?](https://phpunitgen.io/docs#/en/how-does-it-works)
+- [How does it work?](https://phpunitgen.io/docs#/en/how-does-it-work)
 - [Configuration](https://phpunitgen.io/docs#/en/configuration)
 - [Web application](https://phpunitgen.io/docs#/en/webapp)
 - [Command line](https://phpunitgen.io/docs#/en/command-line)
