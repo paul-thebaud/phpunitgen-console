@@ -43,6 +43,7 @@ class TargetResolver implements TargetResolverContract
         }
 
         $targetPath = preg_replace('/\/+/', '/', $targetPath.'/');
+        $sourcePath = str_replace('\\', '/', $sourcePath);
 
         $compiledPath = Str::replaceFirst($this->filesystem->getRoot(), '', $sourcePath);
         $compiledPath = $targetPath.Str::afterFirst('/', $compiledPath);
