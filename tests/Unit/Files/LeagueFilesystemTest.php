@@ -10,6 +10,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemInterface;
 use Mockery;
 use Mockery\Mock;
+use PhpUnitGen\Console\Files\CleansWindowsPaths;
 use PhpUnitGen\Console\Files\LeagueFilesystem;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 use Tests\PhpUnitGen\Console\TestCase;
@@ -17,10 +18,13 @@ use Tests\PhpUnitGen\Console\TestCase;
 /**
  * Class LeagueFilesystemTest.
  *
+ * @covers \PhpUnitGen\Console\Files\CleansWindowsPaths
  * @covers \PhpUnitGen\Console\Files\LeagueFilesystem
  */
 class LeagueFilesystemTest extends TestCase
 {
+    use CleansWindowsPaths;
+
     /**
      * @var FilesystemInterface|Mock
      */
@@ -46,7 +50,7 @@ class LeagueFilesystemTest extends TestCase
     {
         $leagueFilesystem = LeagueFilesystem::make();
 
-        $this->assertSame(getcwd().'/', $leagueFilesystem->getRoot());
+        $this->assertSame($this->convertPotentialWindowsPath(getcwd()).'/', $leagueFilesystem->getRoot());
 
         /** @var Filesystem $filesystem */
         $filesystem = $leagueFilesystem->getFilesystem();
@@ -57,7 +61,20 @@ class LeagueFilesystemTest extends TestCase
         $adapter = $filesystem->getAdapter();
 
         $this->assertInstanceOf(Local::class, $adapter);
-        $this->assertSame('/', $adapter->getPathPrefix());
+        $this->assertSame(DIRECTORY_SEPARATOR, $adapter->getPathPrefix());
+    }
+
+    public function testItCleansWindowsPaths(): void
+    {
+        $this->assertSame(
+            $this->convertPotentialWindowsPath('C:\\Test\\Path\\To\\File'),
+            '/Test/Path/To/File'
+        );
+
+        $this->assertSame(
+            $this->convertPotentialWindowsPath('Path\\To\\File'),
+            'Path/To/File'
+        );
     }
 
     public function testItForwardsHas(): void

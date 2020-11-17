@@ -46,6 +46,9 @@ interface Filesystem
     /**
      * List all files' absolute path from a directory.
      *
+     * Returned paths must be using the "/" char as dir separator.
+     * For absolute paths, each must start with "/" too (no "C:\" like on Windows).
+     *
      * @param string $directory
      *
      * @return Collection|string[]
@@ -84,6 +87,9 @@ interface Filesystem
 
     /**
      * Get the root path of filesystem.
+     *
+     * Returned paths must be using the "/" char as dir separator.
+     * For absolute paths, each must start with "/" too (no "C:\" like on Windows).
      *
      * @return string
      */

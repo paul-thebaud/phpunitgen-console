@@ -54,6 +54,19 @@ class SourcesResolverTest extends TestCase
         ], $this->sourcesResolver->resolve($config, 'source.php')->toArray());
     }
 
+    public function testItReturnsOneCorrectSourceWhenWindowsFileIsGiven(): void
+    {
+        $config = ConsoleConfig::make();
+
+        $this->filesystem->shouldReceive('isFile')->once()
+            ->with('C:\path\to\project\source.php')
+            ->andReturnTrue();
+
+        $this->assertSame([
+            '/path/to/project/source.php',
+        ], $this->sourcesResolver->resolve($config, 'C:\path\to\project\source.php')->toArray());
+    }
+
     public function testItReturnsFilteredSourcesWhenDirIsGiven(): void
     {
         $config = ConsoleConfig::make([

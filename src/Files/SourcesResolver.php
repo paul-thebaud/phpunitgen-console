@@ -20,6 +20,8 @@ use Tightenco\Collect\Support\Collection;
  */
 class SourcesResolver implements SourcesResolverContract
 {
+    use CleansWindowsPaths;
+
     /**
      * @var Filesystem
      */
@@ -41,7 +43,9 @@ class SourcesResolver implements SourcesResolverContract
     public function resolve(ConsoleConfig $config, string $sourcePath): Collection
     {
         if ($this->filesystem->isFile($sourcePath)) {
-            return new Collection([$sourcePath]);
+            return new Collection([
+                $this->convertPotentialWindowsPath($sourcePath),
+            ]);
         }
 
         $sources = $this->filesystem->listFiles($sourcePath)

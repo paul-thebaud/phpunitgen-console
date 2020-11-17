@@ -21,6 +21,9 @@ interface SourcesResolver
      * Resolve the collection of absolute source paths from the given one. Throw an
      * exception if there is no source in the given source path.
      *
+     * Returned paths must be using the "/" char as dir separator.
+     * For absolute paths, each must start with "/" too (no "C:\" like on Windows).
+     *
      * @param ConsoleConfig $config
      * @param string        $sourcePath
      *

@@ -1,5 +1,11 @@
 # Change Log
 
+## Not released yet
+
+**Changed**
+
+- Fix source path resolving for single file on Windows (see #2).
+
 ## 1.3.1
 
 **Removed**

@@ -22,6 +22,8 @@ use Tightenco\Collect\Support\Collection;
  */
 class LeagueFilesystem implements FilesystemContract
 {
+    use CleansWindowsPaths;
+
     /**
      * @var FilesystemInterface
      */
@@ -191,7 +193,7 @@ class LeagueFilesystem implements FilesystemContract
     }
 
     /**
-     * Get the path with "\" replaced with "/".
+     * Cleans a path by replacing "\" with "/" and Windows disks letter.
      *
      * @param string $path
      *
@@ -199,7 +201,7 @@ class LeagueFilesystem implements FilesystemContract
      */
     protected function getCleanedPath(string $path): string
     {
-        return str_replace('\\', '/', preg_replace('/^[A-Z]:/', '', $path, 1));
+        return $this->convertPotentialWindowsPath($path);
     }
 
     /**
