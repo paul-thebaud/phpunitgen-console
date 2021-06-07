@@ -1,29 +1,22 @@
-<phpunit
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.1/phpunit.xsd"
-        bootstrap="vendor/autoload.php"
-        colors="true">
-
-    <testsuites>
-        <testsuite name="Feature">
-            <directory>./tests/Feature</directory>
-        </testsuite>
-
-        <testsuite name="Unit">
-            <directory>./tests/Unit</directory>
-        </testsuite>
-    </testsuites>
-
-    <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src</directory>
-        </whitelist>
-    </filter>
-
-    <logging>
-        <log type="coverage-text" target="php://stdout"/>
-        <log type="coverage-clover" target=".coverage/phpunit-clover.xml"/>
-        <log type="coverage-html" target=".coverage/phpunit"/>
-    </logging>
-
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd" bootstrap="vendor/autoload.php" colors="true">
+  <coverage processUncoveredFiles="true">
+    <include>
+      <directory suffix=".php">./src</directory>
+    </include>
+    <report>
+      <clover outputFile=".coverage/phpunit-clover.xml"/>
+      <html outputDirectory=".coverage/phpunit"/>
+      <text outputFile="php://stdout"/>
+    </report>
+  </coverage>
+  <testsuites>
+    <testsuite name="Feature">
+      <directory>./tests/Feature</directory>
+    </testsuite>
+    <testsuite name="Unit">
+      <directory>./tests/Unit</directory>
+    </testsuite>
+  </testsuites>
+  <logging/>
 </phpunit>
