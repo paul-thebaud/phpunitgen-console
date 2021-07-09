@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 1 * *'
+
+jobs:
+  php-tests:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        php: [ 7.4, 7.3, 7.2, 7.1 ]
+        os: [ ubuntu-latest, windows-latest ]
+
+    name: PHP${{ matrix.php }} - ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.11.0
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: |
+          composer self-update
+          composer install --no-interaction --no-progress
+
+      - name: Execute tests
+        run: vendor/bin/phpunit -c phpunit.xml.dist
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v1.6
+        if: ${{ matrix.php == '7.4' && matrix.os == 'ubuntu-latest' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
