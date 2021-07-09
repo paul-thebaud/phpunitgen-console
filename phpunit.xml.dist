@@ -18,5 +18,7 @@
       <directory>./tests/Unit</directory>
     </testsuite>
   </testsuites>
-  <logging/>
+  <logging>
+    <junit outputFile=".coverage/junit.xml"/>
+  </logging>
 </phpunit>
