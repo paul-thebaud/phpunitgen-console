@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.0-alpha2
+
+**Fixed**
+
+- Version number output on CLI.
+
 ## 2.0.0-alpha1
 
 **Changed**
