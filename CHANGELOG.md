@@ -1,5 +1,22 @@
 # Change Log
 
+## 2.0.0-alpha1
+
+**Changed**
+
+- Support for PHP `^7.1` and `^8.0` (instead of only `^7.1`).
+- Use `phpunitgen/core` `^2.0` instead of `^1.0`.
+
+**Breaking changes**
+
+Due to the migration to `ondrejmirtes/better-reflection`, interfaces, classes and traits of PhpUnitGen are now using
+the `PHPStan` namespaced classes instead of `Roave`. This means that several properties, parameters or returns types are
+changing for the new namespace.
+
+For example, `TestGenerator` interface's `generate` method will now accept a
+`PHPStan\BetterReflection\Reflection\ReflectionClass` instead of a
+`Roave\BetterReflection\Reflection\ReflectionClass`.
+
 ## 1.3.2
 
 **Changed**
