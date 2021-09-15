@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.4.0
+
+**Added**
+
+- Compatibility with Laravel Lumen framework.
+
 ## 1.3.2
 
 **Changed**
