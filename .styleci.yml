@@ -1,1 +1,7 @@
 preset: laravel
+enabled:
+  - phpdoc_separation
+  - phpdoc_align
+disabled:
+  - laravel_phpdoc_separation
+  - laravel_phpdoc_alignment
