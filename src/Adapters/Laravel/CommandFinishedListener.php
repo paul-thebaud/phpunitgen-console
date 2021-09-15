@@ -29,7 +29,7 @@ class CommandFinishedListener
     use HasOutput;
 
     /**
-     * @var Application
+     * @var Application|mixed The Laravel or Lumen app instance, used to resolve app base path.
      */
     protected $application;
 
@@ -56,14 +56,14 @@ class CommandFinishedListener
     /**
      * CommandFinishedListener constructor.
      *
-     * @param Application       $application
+     * @param Application|mixed $application
      * @param ConfigResolver    $configResolver
      * @param PhpUnitGenCommand $phpUnitGenCommand
      * @param Runner            $runner
      * @param Filesystem        $filesystem
      */
     public function __construct(
-        Application $application,
+        $application,
         ConfigResolver $configResolver,
         PhpUnitGenCommand $phpUnitGenCommand,
         Runner $runner,
