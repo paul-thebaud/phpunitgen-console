@@ -23,7 +23,7 @@ class ConsoleApplication extends Application
     /**
      * The current phpunitgen-console version.
      */
-    public const VERSION = '2.0.0-alpha2';
+    public const VERSION = '2.0.0-alpha3';
 
     /**
      * @var ContainerInterface

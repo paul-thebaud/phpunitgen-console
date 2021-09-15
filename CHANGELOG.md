@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.0.0-alpha3
+
+**Added**
+
+- Compatibility with Laravel Lumen framework.
+
 ## 2.0.0-alpha2
 
 **Fixed**
@@ -22,6 +28,12 @@ changing for the new namespace.
 For example, `TestGenerator` interface's `generate` method will now accept a
 `PHPStan\BetterReflection\Reflection\ReflectionClass` instead of a
 `Roave\BetterReflection\Reflection\ReflectionClass`.
+
+## 1.4.0
+
+**Added**
+
+- Compatibility with Laravel Lumen framework.
 
 ## 1.3.2
 
