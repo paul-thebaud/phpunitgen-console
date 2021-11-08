@@ -4,7 +4,7 @@
 
 **Added**
 
-- Add support for PHP `^8.0`.
+- Add support for PHP `~8.0.12` and `~8.1.0`.
 - Drop support for PHP `7`.
 - Compatibility with Laravel Lumen framework.
 
