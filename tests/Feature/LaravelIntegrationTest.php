@@ -27,7 +27,10 @@ class LaravelIntegrationTest extends TestCase
         File::makeDirectory(app_path('Http/Controllers'), 0777, true);
         // Since PhpUnitGen uses relative path, tests will be generated in
         // current tests/Feature directory.
-        File::makeDirectory(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers', 0777, true);
+        File::makeDirectory(
+            __DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers', 0777,
+            true
+        );
     }
 
     /**
@@ -66,7 +69,10 @@ class LaravelIntegrationTest extends TestCase
 
     public function testArtisanCommandCallWorks(): void
     {
-        File::put(app_path('Http/Controllers/Dummy.php'), "<?php\nnamespace App\Http\Controllers;\nclass Dummy {}");
+        File::put(
+            app_path('Http/Controllers/Dummy.php'),
+            "<?php\nnamespace App\Http\Controllers;\nclass Dummy { public function dummy() {} }"
+        );
 
         $this->artisan('phpunitgen', ['source' => app_path('Http/Controllers/Dummy.php')])
             ->expectsOutput('Starting process using default config.')
@@ -80,9 +86,22 @@ class LaravelIntegrationTest extends TestCase
         $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
     }
 
-    public function testArtisanMakeListenerWorks(): void
+    public function testArtisanMakeListenerWithEmptyClassGenerateWarning(): void
     {
         $this->artisan('make:controller', ['name' => 'Dummy'])
+            ->expectsOutput('Controller created successfully.')
+            // We won't validate PhpUnitGen written an output, because the
+            // Laravel event output is not a testing one when using 5.8.
+            //->expectsOutput('Test generated for "Http/Controllers/Dummy".')
+            ->assertExitCode(0);
+
+        $this->assertFalse(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
+        $this->assertTrue(File::exists(app_path('Http/Controllers/Dummy.php')));
+    }
+
+    public function testArtisanMakeListenerWorks(): void
+    {
+        $this->artisan('make:controller', ['name' => 'Dummy', '--resource' => true])
             ->expectsOutput('Controller created successfully.')
             // We won't validate PhpUnitGen written an output, because the
             // Laravel event output is not a testing one when using 5.8.

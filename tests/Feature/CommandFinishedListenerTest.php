@@ -210,7 +210,7 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
             ->with('/john/app/Post.php')
-            ->andReturn('<?php class Post {}');
+            ->andReturn($this->makeClassCodeWithMethod('Post'));
         $this->filesystem->shouldReceive('getRoot')
             ->andReturn('/john/');
         $this->filesystem->shouldReceive('has')
@@ -265,7 +265,7 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
             ->with('/john/app/Post.php')
-            ->andReturn('<?php class Post {}');
+            ->andReturn($this->makeClassCodeWithMethod('Post'));
         $this->filesystem->shouldReceive('getRoot')
             ->andReturn('/john/');
         $this->filesystem->shouldReceive('has')
@@ -326,7 +326,7 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
             ->with('/john/app/Post.php')
-            ->andReturn('<?php namespace App; class Post {}');
+            ->andReturn($this->makeClassCodeWithMethod('Post', 'App'));
         $this->filesystem->shouldReceive('getRoot')
             ->andReturn('/john/');
         $this->filesystem->shouldReceive('has')
@@ -339,14 +339,17 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
             ->with('/john/app/Http/Controllers/PostController.php')
-            ->andReturn('<?php namespace App\\Http\\Controllers; class PostController {}');
+            ->andReturn($this->makeClassCodeWithMethod('PostController', 'App\\Http\\Controllers'));
         $this->filesystem->shouldReceive('getRoot')
             ->andReturn('/john/');
         $this->filesystem->shouldReceive('has')
             ->with('tests/Feature/Http/Controllers/PostControllerTest.php')
             ->andReturnFalse();
         $this->filesystem->shouldReceive('write')
-            ->with('tests/Feature/Http/Controllers/PostControllerTest.php', Mockery::type('string'));
+            ->with(
+                'tests/Feature/Http/Controllers/PostControllerTest.php',
+                Mockery::type('string')
+            );
 
         $this->commandFinishedListener->handle($event);
     }
@@ -398,7 +401,7 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
             ->with('/john/app/Models/Post.php')
-            ->andReturn('<?php class Post {}');
+            ->andReturn($this->makeClassCodeWithMethod('Post'));
         $this->filesystem->shouldReceive('getRoot')
             ->andReturn('/john/');
         $this->filesystem->shouldReceive('has')
@@ -454,7 +457,7 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
             ->with('/john/app/'.$expectedPath.'/Foo.php')
-            ->andReturn('<?php class Foo {}');
+            ->andReturn($this->makeClassCodeWithMethod('Foo'));
         $this->filesystem->shouldReceive('getRoot')
             ->andReturn('/john/');
         $this->filesystem->shouldReceive('has')
@@ -532,7 +535,7 @@ class CommandFinishedListenerTest extends TestCase
             ->andReturnTrue();
         $this->filesystem->shouldReceive('read')
             ->with('/john/app/Post.php')
-            ->andReturn('<?php class Post {}');
+            ->andReturn($this->makeClassCodeWithMethod('Post'));
         $this->filesystem->shouldReceive('getRoot')
             ->andReturn('/john/');
         $this->filesystem->shouldReceive('has')
@@ -541,5 +544,12 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('write')->never();
 
         $this->commandFinishedListener->handle($event);
+    }
+
+    private function makeClassCodeWithMethod(string $name, ?string $namespace = ''): string
+    {
+        $namespace = $namespace ? " namespace $namespace;" : '';
+
+        return "<?php{$namespace} class $name { public function dummy() {} }";
     }
 }
