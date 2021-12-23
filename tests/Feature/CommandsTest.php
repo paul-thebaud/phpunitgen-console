@@ -61,7 +61,7 @@ class CommandsTest extends TestCase
             ->andReturnFalse();
         $filesystem->shouldReceive('read')->once()
             ->with('src/Foo.php')
-            ->andReturn('<?php class Foo {}');
+            ->andReturn('<?php class Foo { public function dummy() {} }');
         $filesystem->shouldReceive('read')->once()
             ->with('src/Bar.php')
             ->andReturn('<?php return [];');
@@ -81,7 +81,10 @@ class CommandsTest extends TestCase
         $output = $commandTester->getDisplay();
 
         $this->assertSame(100, $commandTester->getStatusCode());
-        $this->assertStringContainsString('Starting process using config file at \'phpunitgen.php\'.', $output);
+        $this->assertStringContainsString(
+            'Starting process using config file at \'phpunitgen.php\'.',
+            $output
+        );
         $this->assertStringContainsString('.E', $output);
         $this->assertStringContainsString('(2 / 2)', $output);
         $this->assertStringContainsString(

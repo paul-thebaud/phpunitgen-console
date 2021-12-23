@@ -211,6 +211,15 @@ class Runner implements RunnerContract
                 $testGenerator = $testGenerator->getDelegate($reflectionClass);
             }
 
+            if (! $testGenerator->canGenerateFor($reflectionClass)) {
+                $this->processHandler->handleWarning(
+                    $sourcePath,
+                    'cannot generate tests, file is an interface/anonymous class or does not contain any public method'
+                );
+
+                return;
+            }
+
             $testClass = $testGenerator->generate($reflectionClass);
             $rendered = $application->getRenderer()
                 ->visitTestClass($testClass)
