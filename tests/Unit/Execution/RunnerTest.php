@@ -219,10 +219,10 @@ class RunnerTest extends TestCase
             ->andReturnFalse();
         $this->filesystem->shouldReceive('read')->once()
             ->with('foo')
-            ->andReturn('<?php class Foo {}');
+            ->andReturn('<?php class Foo { public function dummy() {} }');
         $this->filesystem->shouldReceive('read')->once()
             ->with('bar')
-            ->andReturn('<?php class Bar {}');
+            ->andReturn('<?php class Bar { public function dummy() {} }');
         $this->filesystem->shouldReceive('read')->once()
             ->with('baz')
             ->andThrow($exception);
@@ -278,7 +278,7 @@ class RunnerTest extends TestCase
             ->andReturnFalse();
         $this->filesystem->shouldReceive('read')->once()
             ->with('foo')
-            ->andReturn('<?php class Foo {}');
+            ->andReturn('<?php class Foo { public function dummy() {} }');
         $this->filesystem->shouldReceive('has')->once()
             ->with('tests/fooTest')
             ->andReturnTrue();
@@ -291,7 +291,7 @@ class RunnerTest extends TestCase
         $this->assertSame(0, $this->runner->run($this->input, $this->output));
     }
 
-    public function testItRunsWithWarning(): void
+    public function testItRunsWithWarningWhenExistsAndOverwriteDisabled(): void
     {
         $config = ConsoleConfig::make();
         $sources = new Collection(['foo']);
@@ -331,10 +331,104 @@ class RunnerTest extends TestCase
             ->andReturnFalse();
         $this->filesystem->shouldReceive('read')->once()
             ->with('foo')
-            ->andReturn('<?php class Foo {}');
+            ->andReturn('<?php class Foo { public function dummy() {} }');
         $this->filesystem->shouldReceive('has')->once()
             ->with('tests/fooTest')
             ->andReturnTrue();
+        $this->filesystem->shouldReceive('write')->never();
+
+        $this->assertSame(101, $this->runner->run($this->input, $this->output));
+    }
+
+    public function testItRunsWithWarningWhenInterface(): void
+    {
+        $config = ConsoleConfig::make();
+        $sources = new Collection(['foo']);
+
+        $this->processHandler->shouldReceive('initialize')->once()
+            ->with($this->output);
+        $this->processHandler->shouldReceive('handleStart')->once()
+            ->with($config, $sources);
+        $this->processHandler->shouldReceive('handleWarning')->once()
+            ->with('foo', 'cannot generate tests, file is an interface/anonymous class or does not contain any public method');
+        $this->processHandler->shouldReceive('handleEnd')->once()
+            ->withNoArgs();
+        $this->processHandler->shouldReceive('hasErrors')
+            ->andReturnFalse();
+        $this->processHandler->shouldReceive('hasWarnings')
+            ->andReturnTrue();
+
+        $this->input->shouldReceive('getArgument')->once()
+            ->with('source')
+            ->andReturn('src');
+        $this->input->shouldReceive('getArgument')->once()
+            ->with('target')
+            ->andReturn('tests');
+
+        $this->targetResolver->shouldReceive('resolve')
+            ->with(Mockery::type(ClassFactory::class), 'foo', 'tests')
+            ->andReturn('tests/fooTest');
+
+        $this->configResolver->shouldReceive('resolve')->once()
+            ->with($this->input)
+            ->andReturn($config);
+        $this->sourcesResolver->shouldReceive('resolve')->once()
+            ->with($config, 'src')
+            ->andReturn($sources);
+        $this->filesystem->shouldReceive('isFile')->once()
+            ->with('tests')
+            ->andReturnFalse();
+        $this->filesystem->shouldReceive('read')->once()
+            ->with('foo')
+            ->andReturn('<?php interface Foo { public function dummy() {} }');
+        $this->filesystem->shouldReceive('has')->never();
+        $this->filesystem->shouldReceive('write')->never();
+
+        $this->assertSame(101, $this->runner->run($this->input, $this->output));
+    }
+
+    public function testItRunsWithWarningWhenNoMethods(): void
+    {
+        $config = ConsoleConfig::make();
+        $sources = new Collection(['foo']);
+
+        $this->processHandler->shouldReceive('initialize')->once()
+            ->with($this->output);
+        $this->processHandler->shouldReceive('handleStart')->once()
+            ->with($config, $sources);
+        $this->processHandler->shouldReceive('handleWarning')->once()
+            ->with('foo', 'cannot generate tests, file is an interface/anonymous class or does not contain any public method');
+        $this->processHandler->shouldReceive('handleEnd')->once()
+            ->withNoArgs();
+        $this->processHandler->shouldReceive('hasErrors')
+            ->andReturnFalse();
+        $this->processHandler->shouldReceive('hasWarnings')
+            ->andReturnTrue();
+
+        $this->input->shouldReceive('getArgument')->once()
+            ->with('source')
+            ->andReturn('src');
+        $this->input->shouldReceive('getArgument')->once()
+            ->with('target')
+            ->andReturn('tests');
+
+        $this->targetResolver->shouldReceive('resolve')
+            ->with(Mockery::type(ClassFactory::class), 'foo', 'tests')
+            ->andReturn('tests/fooTest');
+
+        $this->configResolver->shouldReceive('resolve')->once()
+            ->with($this->input)
+            ->andReturn($config);
+        $this->sourcesResolver->shouldReceive('resolve')->once()
+            ->with($config, 'src')
+            ->andReturn($sources);
+        $this->filesystem->shouldReceive('isFile')->once()
+            ->with('tests')
+            ->andReturnFalse();
+        $this->filesystem->shouldReceive('read')->once()
+            ->with('foo')
+            ->andReturn('<?php class Foo { }');
+        $this->filesystem->shouldReceive('has')->never();
         $this->filesystem->shouldReceive('write')->never();
 
         $this->assertSame(101, $this->runner->run($this->input, $this->output));
