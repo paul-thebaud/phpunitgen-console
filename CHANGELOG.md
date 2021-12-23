@@ -1,5 +1,11 @@
 # Change Log
 
+## 1.5.0
+
+**Changed**
+
+- Runner will now trigger warning instead of error when able to generate tests for a class.
+
 ## 1.4.0
 
 **Added**
@@ -47,7 +53,8 @@
 
 **Added**
 
-- Refactor code by adding the `HasOutput` trait, used by `ProcessHandler` and `CommandFinishedListener`.
+- Refactor code by adding the `HasOutput` trait, used by `ProcessHandler`
+  and `CommandFinishedListener`.
 
 ## 1.0.0-alpha2
 

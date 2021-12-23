@@ -44,7 +44,7 @@ class ConsoleApplicationTest extends TestCase
         $output->shouldReceive(['isQuiet' => false]);
         $output->shouldReceive('writeln')
             ->once()
-            ->with("PhpUnitGen <info>1.4.0</info>\n");
+            ->with("PhpUnitGen <info>1.5.0</info>\n");
 
         $runner->shouldReceive('run')
             ->with($input, $output)
