@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Tests\PhpUnitGen\Console\Unit\Files;
 
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\FileNotFoundException;
-use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\DirectoryAttributes;
+use League\Flysystem\DirectoryListing;
+use League\Flysystem\FileAttributes;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToReadFile;
 use Mockery;
 use Mockery\Mock;
 use PhpUnitGen\Console\Files\CleansWindowsPaths;
@@ -26,7 +27,7 @@ class LeagueFilesystemTest extends TestCase
     use CleansWindowsPaths;
 
     /**
-     * @var FilesystemInterface|Mock
+     * @var FilesystemOperator|Mock
      */
     protected $filesystem;
 
@@ -42,7 +43,7 @@ class LeagueFilesystemTest extends TestCase
     {
         parent::setUp();
 
-        $this->filesystem = Mockery::mock(FilesystemInterface::class);
+        $this->filesystem = Mockery::mock(FilesystemOperator::class);
         $this->leagueFilesystem = new LeagueFilesystem($this->filesystem, '/john');
     }
 
@@ -50,25 +51,17 @@ class LeagueFilesystemTest extends TestCase
     {
         $leagueFilesystem = LeagueFilesystem::make();
 
-        $this->assertSame($this->convertPotentialWindowsPath(getcwd()).'/', $leagueFilesystem->getRoot());
-
-        /** @var Filesystem $filesystem */
-        $filesystem = $leagueFilesystem->getFilesystem();
-
-        $this->assertInstanceOf(Filesystem::class, $filesystem);
-
-        /** @var Local $adapter */
-        $adapter = $filesystem->getAdapter();
-
-        $this->assertInstanceOf(Local::class, $adapter);
-        $this->assertSame(DIRECTORY_SEPARATOR, $adapter->getPathPrefix());
+        $this->assertSame(
+            $this->convertPotentialWindowsPath(getcwd()).'/',
+            $leagueFilesystem->getRoot()
+        );
     }
 
     public function testItCleansWindowsPaths(): void
     {
         $this->assertSame(
             $this->convertPotentialWindowsPath('C:\\Test\\Path\\To\\File'),
-            '/Test/Path/To/File'
+            'C:/Test/Path/To/File'
         );
 
         $this->assertSame(
@@ -86,65 +79,33 @@ class LeagueFilesystemTest extends TestCase
         $this->assertTrue($this->leagueFilesystem->has('app/file'));
     }
 
-    public function testItChecksIsFile(): void
+    public function testItForwardsFileExists(): void
     {
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/file1')
-            ->andReturn(['type' => 'file']);
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/file2')
-            ->andReturn(['type' => 'dir']);
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/file3')
-            ->andReturnFalse();
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/file4')
-            ->andReturn([]);
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/file5')
-            ->andThrow(new FileNotFoundException('/john/app/file5'));
+        $this->filesystem->shouldReceive('fileExists')->once()
+            ->with('/john/app/file')
+            ->andReturnTrue();
 
-        $this->assertTrue($this->leagueFilesystem->isFile('app/file1'));
-        $this->assertFalse($this->leagueFilesystem->isFile('app/file2'));
-        $this->assertFalse($this->leagueFilesystem->isFile('app/file3'));
-        $this->assertFalse($this->leagueFilesystem->isFile('app/file4'));
-        $this->assertFalse($this->leagueFilesystem->isFile('app/file5'));
+        $this->assertTrue($this->leagueFilesystem->isFile('app/file'));
     }
 
-    public function testItChecksIsDirectory(): void
+    public function testItForwardsDirectoryExists(): void
     {
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/dir1')
-            ->andReturn(['type' => 'dir']);
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/dir2')
-            ->andReturn(['type' => 'file']);
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/dir3')
-            ->andReturnFalse();
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/dir4')
-            ->andReturn([]);
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/dir5')
-            ->andThrow(new FileNotFoundException('/john/app/dir5'));
+        $this->filesystem->shouldReceive('directoryExists')->once()
+            ->with('/john/app/file')
+            ->andReturnTrue();
 
-        $this->assertTrue($this->leagueFilesystem->isDirectory('app/dir1'));
-        $this->assertFalse($this->leagueFilesystem->isDirectory('app/dir2'));
-        $this->assertFalse($this->leagueFilesystem->isDirectory('app/dir3'));
-        $this->assertFalse($this->leagueFilesystem->isDirectory('app/dir4'));
-        $this->assertFalse($this->leagueFilesystem->isDirectory('app/dir5'));
+        $this->assertTrue($this->leagueFilesystem->isDirectory('app/file'));
     }
 
     public function testItListsFiles(): void
     {
         $this->filesystem->shouldReceive('listContents')->once()
             ->with('/john/app/dir', true)
-            ->andReturn([
-                ['type' => 'dir', 'path' => 'john/app/services'],
-                ['type' => 'file', 'path' => 'john/app/file1'],
-                ['type' => 'file', 'path' => 'john/app/services/file2'],
-            ]);
+            ->andReturn(new DirectoryListing([
+                new DirectoryAttributes('john/app/services'),
+                new FileAttributes('john/app/file1'),
+                new FileAttributes('john/app/services/file2'),
+            ]));
 
         $this->assertSame([
             '/john/app/file1',
@@ -162,7 +123,7 @@ class LeagueFilesystemTest extends TestCase
 
         $this->filesystem->shouldReceive('read')->once()
             ->with('/john/app/file_not_found')
-            ->andThrow(new FileNotFoundException('/john/app/file_not_found'));
+            ->andThrow(new UnableToReadFile('/john/app/file_not_found'));
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('file not found: app/file_not_found');
@@ -170,26 +131,9 @@ class LeagueFilesystemTest extends TestCase
         $this->assertSame('content', $this->leagueFilesystem->read('app/file_not_found'));
     }
 
-    public function testItForwardsWriteWithExistingFile(): void
+    public function testItForwardsWriteWithoutExistingDirectory(): void
     {
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/file')
-            ->andReturn(['type' => 'file']);
-        $this->filesystem->shouldReceive('has')->once()
-            ->with('/john/app/file')
-            ->andReturnTrue();
-        $this->filesystem->shouldReceive('update')->once()
-            ->with('/john/app/file', 'content');
-
-        $this->leagueFilesystem->write('app/file', 'content');
-    }
-
-    public function testItForwardsWriteWithNonExistingFile(): void
-    {
-        $this->filesystem->shouldReceive('getMetadata')->once()
-            ->with('/john/app/file')
-            ->andThrow(new FileNotFoundException('/john/app/file'));
-        $this->filesystem->shouldReceive('has')->once()
+        $this->filesystem->shouldReceive('directoryExists')->once()
             ->with('/john/app/file')
             ->andReturnFalse();
         $this->filesystem->shouldReceive('write')->once()
@@ -200,9 +144,9 @@ class LeagueFilesystemTest extends TestCase
 
     public function testItForwardsWriteWithExistingDirectory(): void
     {
-        $this->filesystem->shouldReceive('getMetadata')->once()
+        $this->filesystem->shouldReceive('directoryExists')->once()
             ->with('/john/app/file')
-            ->andReturn(['type' => 'dir']);
+            ->andReturnTrue();
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('cannot write file because directory with same name exists: app/file');
@@ -218,7 +162,7 @@ class LeagueFilesystemTest extends TestCase
         $this->filesystem->shouldReceive('has')->once()
             ->with('/john/app/target')
             ->andReturnFalse();
-        $this->filesystem->shouldReceive('rename')->once()
+        $this->filesystem->shouldReceive('move')->once()
             ->with('/john/app/source', '/john/app/target');
 
         $this->leagueFilesystem->rename('app/source', 'app/target');
@@ -266,18 +210,24 @@ class LeagueFilesystemTest extends TestCase
 
     public function testItIsCompatibleWithWindowsPaths(): void
     {
-        $windowsLeagueFilesystemC = new LeagueFilesystem($this->filesystem, 'C:\Users\John Doe\Documents');
+        $windowsLeagueFilesystemC = new LeagueFilesystem(
+            $this->filesystem,
+            'C:\Users\John Doe\Documents'
+        );
 
         $this->filesystem->shouldReceive('has')->once()
-            ->with('/Users/John Doe/Documents/app/file')
+            ->with('C:/Users/John Doe/Documents/app/file')
             ->andReturnTrue();
 
         $this->assertTrue($windowsLeagueFilesystemC->has('app\file'));
 
-        $windowsLeagueFilesystemD = new LeagueFilesystem($this->filesystem, 'D:\Users\John Doe\Documents');
+        $windowsLeagueFilesystemD = new LeagueFilesystem(
+            $this->filesystem,
+            'D:\Users\John Doe\Documents'
+        );
 
         $this->filesystem->shouldReceive('has')->once()
-            ->with('/app/file')
+            ->with('C:/app/file')
             ->andReturnTrue();
 
         $this->assertTrue($windowsLeagueFilesystemD->has('C:\app\file'));

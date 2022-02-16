@@ -63,7 +63,7 @@ class SourcesResolverTest extends TestCase
             ->andReturnTrue();
 
         $this->assertSame([
-            '/path/to/project/source.php',
+            'C:/path/to/project/source.php',
         ], $this->sourcesResolver->resolve($config, 'C:\path\to\project\source.php')->toArray());
     }
 

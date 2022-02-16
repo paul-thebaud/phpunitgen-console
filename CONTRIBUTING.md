@@ -23,7 +23,7 @@ so don't worry if your code styling isn't perfect!
 - **Document any change in behaviour.** Make sure the `README.md` and any
 other relevant documentation are kept up-to-date.
 
-- **Create feature branches.** Don't ask us to pull from your master branch.
+- **Create feature branches.** Don't ask us to pull from your main branch.
 
 - **One pull request per feature.** If you want to do more than one thing,
 send multiple pull requests.

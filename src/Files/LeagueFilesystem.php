@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace PhpUnitGen\Console\Files;
 
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\FileNotFoundException;
+use League\Flysystem\FileAttributes;
 use League\Flysystem\Filesystem;
-use League\Flysystem\FilesystemInterface;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\Local\LocalFilesystemAdapter;
+use League\Flysystem\StorageAttributes;
+use League\Flysystem\UnableToReadFile;
 use PhpUnitGen\Console\Contracts\Files\Filesystem as FilesystemContract;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
 use PhpUnitGen\Core\Helpers\Str;
@@ -25,7 +27,7 @@ class LeagueFilesystem implements FilesystemContract
     use CleansWindowsPaths;
 
     /**
-     * @var FilesystemInterface
+     * @var FilesystemOperator
      */
     protected $filesystem;
 
@@ -37,10 +39,10 @@ class LeagueFilesystem implements FilesystemContract
     /**
      * LeagueFilesystem constructor.
      *
-     * @param FilesystemInterface $filesystem
-     * @param string              $currentWorkingDirectory
+     * @param FilesystemOperator $filesystem
+     * @param string             $currentWorkingDirectory
      */
-    public function __construct(FilesystemInterface $filesystem, string $currentWorkingDirectory)
+    public function __construct(FilesystemOperator $filesystem, string $currentWorkingDirectory)
     {
         $this->filesystem = $filesystem;
         $this->currentWorkingDirectory = $this->getCleanedPath($currentWorkingDirectory);
@@ -53,7 +55,12 @@ class LeagueFilesystem implements FilesystemContract
      */
     public static function make(): self
     {
-        $localAdapter = new Local('/', LOCK_EX, Local::SKIP_LINKS);
+        $localAdapter = new LocalFilesystemAdapter(
+            '/',
+            null,
+            LOCK_EX,
+            LocalFilesystemAdapter::SKIP_LINKS
+        );
 
         return new static(new Filesystem($localAdapter), getcwd());
     }
@@ -71,9 +78,7 @@ class LeagueFilesystem implements FilesystemContract
      */
     public function isFile(string $path): bool
     {
-        $type = $this->getPathType($this->getAbsolutePath($path));
-
-        return $type === 'file';
+        return $this->filesystem->fileExists($this->getAbsolutePath($path));
     }
 
     /**
@@ -81,9 +86,7 @@ class LeagueFilesystem implements FilesystemContract
      */
     public function isDirectory(string $path): bool
     {
-        $type = $this->getPathType($this->getAbsolutePath($path));
-
-        return $type === 'dir';
+        return $this->filesystem->directoryExists($this->getAbsolutePath($path));
     }
 
     /**
@@ -96,12 +99,8 @@ class LeagueFilesystem implements FilesystemContract
         );
 
         return $files
-            ->reject(function (array $file) {
-                return $file['type'] !== 'file';
-            })
-            ->map(function (array $file) {
-                return '/'.$file['path'];
-            })
+            ->filter(fn (StorageAttributes $attrs) => $attrs instanceof FileAttributes)
+            ->map(fn (StorageAttributes $attrs) => '/'.$attrs->path())
             ->values();
     }
 
@@ -112,8 +111,8 @@ class LeagueFilesystem implements FilesystemContract
     {
         try {
             return $this->filesystem->read($this->getAbsolutePath($file));
-        } catch (FileNotFoundException $exception) {
-            throw new InvalidArgumentException('file not found: '.$file);
+        } catch (UnableToReadFile $exception) {
+            throw new InvalidArgumentException('file not found: '.$file, 0, $exception);
         }
     }
 
@@ -130,11 +129,7 @@ class LeagueFilesystem implements FilesystemContract
             );
         }
 
-        if ($this->has($path)) {
-            $this->filesystem->update($path, $content);
-        } else {
-            $this->filesystem->write($path, $content);
-        }
+        $this->filesystem->write($path, $content);
     }
 
     /**
@@ -153,7 +148,7 @@ class LeagueFilesystem implements FilesystemContract
             throw new InvalidArgumentException("cannot rename to existing {$newPath}");
         }
 
-        $this->filesystem->rename($absolutePath, $newAbsolutePath);
+        $this->filesystem->move($absolutePath, $newAbsolutePath);
     }
 
     /**
@@ -162,16 +157,6 @@ class LeagueFilesystem implements FilesystemContract
     public function getRoot(): string
     {
         return $this->currentWorkingDirectory.'/';
-    }
-
-    /**
-     * Retrieve the base League filesystem instance.
-     *
-     * @return FilesystemInterface
-     */
-    public function getFilesystem(): FilesystemInterface
-    {
-        return $this->filesystem;
     }
 
     /**
@@ -185,7 +170,7 @@ class LeagueFilesystem implements FilesystemContract
     {
         $path = $this->getCleanedPath($path);
 
-        if (Str::startsWith('/', $path)) {
+        if (Str::startsWith('/', $path) || Str::containsRegex('^[A-Z]:', $path)) {
             return $path;
         }
 
@@ -202,28 +187,5 @@ class LeagueFilesystem implements FilesystemContract
     protected function getCleanedPath(string $path): string
     {
         return $this->convertPotentialWindowsPath($path);
-    }
-
-    /**
-     * Get the type metadata of the given path if possible. Returns null if
-     * not found.
-     *
-     * @param string $path
-     *
-     * @return string|null
-     */
-    protected function getPathType(string $path): ?string
-    {
-        try {
-            $metadata = $this->filesystem->getMetadata($path);
-        } catch (FileNotFoundException $exception) {
-            return null;
-        }
-
-        if (! is_array($metadata) || ! isset($metadata['type'])) {
-            return null;
-        }
-
-        return $metadata['type'];
     }
 }
