@@ -22,6 +22,6 @@ trait CleansWindowsPaths
      */
     protected function convertPotentialWindowsPath(string $path): string
     {
-        return str_replace('\\', '/', preg_replace('/^[A-Z]:/', '', $path, 1));
+        return str_replace('\\', '/', $path);
     }
 }

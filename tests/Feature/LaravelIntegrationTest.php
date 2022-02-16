@@ -103,9 +103,7 @@ class LaravelIntegrationTest extends TestCase
     {
         $this->artisan('make:controller', ['name' => 'Dummy', '--resource' => true])
             ->expectsOutput('Controller created successfully.')
-            // We won't validate PhpUnitGen written an output, because the
-            // Laravel event output is not a testing one when using 5.8.
-            //->expectsOutput('Test generated for "Http/Controllers/Dummy".')
+            ->expectsOutput('Test generated for "Http/Controllers/Dummy".')
             ->assertExitCode(0);
 
         $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));

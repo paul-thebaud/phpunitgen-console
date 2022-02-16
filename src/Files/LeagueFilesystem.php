@@ -170,7 +170,7 @@ class LeagueFilesystem implements FilesystemContract
     {
         $path = $this->getCleanedPath($path);
 
-        if (Str::startsWith('/', $path)) {
+        if (Str::startsWith('/', $path) || Str::containsRegex('^[A-Z]:', $path)) {
             return $path;
         }
 

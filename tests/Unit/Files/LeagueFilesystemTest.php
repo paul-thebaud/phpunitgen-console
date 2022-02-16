@@ -61,7 +61,7 @@ class LeagueFilesystemTest extends TestCase
     {
         $this->assertSame(
             $this->convertPotentialWindowsPath('C:\\Test\\Path\\To\\File'),
-            '/Test/Path/To/File'
+            'C:/Test/Path/To/File'
         );
 
         $this->assertSame(
@@ -210,11 +210,13 @@ class LeagueFilesystemTest extends TestCase
 
     public function testItIsCompatibleWithWindowsPaths(): void
     {
-        $windowsLeagueFilesystemC = new LeagueFilesystem($this->filesystem,
-            'C:\Users\John Doe\Documents');
+        $windowsLeagueFilesystemC = new LeagueFilesystem(
+            $this->filesystem,
+            'C:\Users\John Doe\Documents'
+        );
 
         $this->filesystem->shouldReceive('has')->once()
-            ->with('/Users/John Doe/Documents/app/file')
+            ->with('C:/Users/John Doe/Documents/app/file')
             ->andReturnTrue();
 
         $this->assertTrue($windowsLeagueFilesystemC->has('app\file'));
@@ -225,7 +227,7 @@ class LeagueFilesystemTest extends TestCase
         );
 
         $this->filesystem->shouldReceive('has')->once()
-            ->with('/app/file')
+            ->with('C:/app/file')
             ->andReturnTrue();
 
         $this->assertTrue($windowsLeagueFilesystemD->has('C:\app\file'));
