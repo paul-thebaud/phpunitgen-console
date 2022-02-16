@@ -99,8 +99,8 @@ class LeagueFilesystem implements FilesystemContract
         );
 
         return $files
-            ->filter(fn(StorageAttributes $attrs) => $attrs instanceof FileAttributes)
-            ->map(fn(StorageAttributes $attrs) => '/'.$attrs->path())
+            ->filter(fn (StorageAttributes $attrs) => $attrs instanceof FileAttributes)
+            ->map(fn (StorageAttributes $attrs) => '/'.$attrs->path())
             ->values();
     }
 
