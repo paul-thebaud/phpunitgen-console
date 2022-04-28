@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.0.1
+
+**Fixed**
+
+- Fixed version number displayed by CLI.
+
 ## 3.0.0
 
 **Added**
