@@ -20,20 +20,23 @@ class ConsoleConfig extends Config implements ConsoleConfigContract
      * The properties of the config with there type hint.
      */
     protected const PROPERTIES = [
-        'automaticGeneration' => self::TYPE_BOOL,
-        'backupFiles'         => self::TYPE_BOOL,
-        'implementations'     => self::TYPE_ARRAY,
-        'baseNamespace'       => self::TYPE_STRING,
-        'baseTestNamespace'   => self::TYPE_STRING,
-        'testCase'            => self::TYPE_STRING,
-        'excludedMethods'     => self::TYPE_ARRAY,
-        'mergedPhpDoc'        => self::TYPE_ARRAY,
-        'phpDoc'              => self::TYPE_ARRAY,
-        'options'             => self::TYPE_ARRAY,
-        'overwriteFiles'      => self::TYPE_BOOL,
-        'excludedFiles'       => self::TYPE_ARRAY,
-        'includedFiles'       => self::TYPE_ARRAY,
-        'generateOnMake'      => self::TYPE_BOOL,
+        'automaticGeneration'      => self::TYPE_BOOL,
+        'backupFiles'              => self::TYPE_BOOL,
+        'implementations'          => self::TYPE_ARRAY,
+        'baseNamespace'            => self::TYPE_STRING,
+        'baseTestNamespace'        => self::TYPE_STRING,
+        'testCase'                 => self::TYPE_STRING,
+        'testClassFinal'           => self::TYPE_BOOL,
+        'testClassStrictTypes'     => self::TYPE_BOOL,
+        'testClassTypedProperties' => self::TYPE_BOOL,
+        'excludedMethods'          => self::TYPE_ARRAY,
+        'mergedPhpDoc'             => self::TYPE_ARRAY,
+        'phpDoc'                   => self::TYPE_ARRAY,
+        'options'                  => self::TYPE_ARRAY,
+        'overwriteFiles'           => self::TYPE_BOOL,
+        'excludedFiles'            => self::TYPE_ARRAY,
+        'includedFiles'            => self::TYPE_ARRAY,
+        'generateOnMake'           => self::TYPE_BOOL,
     ];
 
     /**

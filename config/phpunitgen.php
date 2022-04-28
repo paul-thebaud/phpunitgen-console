@@ -11,7 +11,7 @@ return [
      | tests files.
      |--------------------------------------------------------------------------
      */
-    'overwriteFiles'      => false,
+    'overwriteFiles'           => false,
 
     /*
      |--------------------------------------------------------------------------
@@ -21,7 +21,7 @@ return [
      | overwritten (useful when "overwriteFile" is enabled).
      |--------------------------------------------------------------------------
      */
-    'backupFiles'         => true,
+    'backupFiles'              => true,
 
     /*
      |--------------------------------------------------------------------------
@@ -32,7 +32,7 @@ return [
      | opening and closing "/", as they will be added automatically.
      |--------------------------------------------------------------------------
      */
-    'excludedFiles'       => [],
+    'excludedFiles'            => [],
 
     /*
      |--------------------------------------------------------------------------
@@ -43,7 +43,7 @@ return [
      | opening and closing "/", as they will be added automatically.
      |--------------------------------------------------------------------------
      */
-    'includedFiles'       => [
+    'includedFiles'            => [
         '\.php$',
     ],
 
@@ -55,7 +55,7 @@ return [
      | generate the associated tests. Only works with Laravel for the moment.
      |--------------------------------------------------------------------------
      */
-    'generateOnMake'      => true,
+    'generateOnMake'           => true,
 
     /*
      |--------------------------------------------------------------------------
@@ -65,7 +65,7 @@ return [
      | complex tests skeleton (getter/setter tests...).
      |--------------------------------------------------------------------------
      */
-    'automaticGeneration' => true,
+    'automaticGeneration'      => true,
 
     /*
      |--------------------------------------------------------------------------
@@ -75,7 +75,7 @@ return [
      | specific contract.
      |--------------------------------------------------------------------------
      */
-    'implementations'     => DelegateTestGenerator::implementations(),
+    'implementations'          => DelegateTestGenerator::implementations(),
 
     /*
      |--------------------------------------------------------------------------
@@ -84,7 +84,7 @@ return [
      | This string will be removed from the test class namespace.
      |--------------------------------------------------------------------------
      */
-    'baseNamespace'       => 'App',
+    'baseNamespace'            => 'App',
 
     /*
      |--------------------------------------------------------------------------
@@ -93,7 +93,7 @@ return [
      | This string will be prepend to the test class namespace.
      |--------------------------------------------------------------------------
      */
-    'baseTestNamespace'   => 'Tests',
+    'baseTestNamespace'        => 'Tests',
 
     /*
      |--------------------------------------------------------------------------
@@ -102,7 +102,34 @@ return [
      | The absolute class name to TestCase.
      |--------------------------------------------------------------------------
      */
-    'testCase'            => 'Tests\\TestCase',
+    'testCase'                 => 'Tests\\TestCase',
+
+    /*
+     |--------------------------------------------------------------------------
+     | Test class final.
+     |
+     | Tells if the test class should be final.
+     |--------------------------------------------------------------------------
+     */
+    'testClassFinal'           => true,
+
+    /*
+     |--------------------------------------------------------------------------
+     | Test class strict types.
+     |
+     | Tells if the test class should declare strict types.
+     |--------------------------------------------------------------------------
+     */
+    'testClassStrictTypes'     => false,
+
+    /*
+     |--------------------------------------------------------------------------
+     | Test class typed properties.
+     |
+     | Tells if the test class properties should be typed or documented.
+     |--------------------------------------------------------------------------
+     */
+    'testClassTypedProperties' => true,
 
     /*
      |--------------------------------------------------------------------------
@@ -113,7 +140,7 @@ return [
      | closing "/", as they will be added automatically.
      |--------------------------------------------------------------------------
      */
-    'excludedMethods'     => [
+    'excludedMethods'          => [
         '__construct',
         '__destruct',
     ],
@@ -126,7 +153,7 @@ return [
      | to the test class documentation.
      |--------------------------------------------------------------------------
      */
-    'mergedPhpDoc'        => [
+    'mergedPhpDoc'             => [
         'author',
         'copyright',
         'license',
@@ -141,7 +168,7 @@ return [
      | added to the test class documentation.
      |--------------------------------------------------------------------------
      */
-    'phpDoc'              => [],
+    'phpDoc'                   => [],
 
     /*
      |--------------------------------------------------------------------------
@@ -151,7 +178,7 @@ return [
      | contains any other useful information for test generation.
      |--------------------------------------------------------------------------
      */
-    'options'             => [
+    'options'                  => [
         /*
          |----------------------------------------------------------------------
          | Context.
