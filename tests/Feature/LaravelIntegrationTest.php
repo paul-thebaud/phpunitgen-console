@@ -89,7 +89,7 @@ class LaravelIntegrationTest extends TestCase
     public function testArtisanMakeListenerWithEmptyClassGenerateWarning(): void
     {
         $this->artisan('make:controller', ['name' => 'Dummy'])
-            ->expectsOutput('Controller created successfully.')
+            ->expectsOutputToContain('Controller created successfully.')
             // We won't validate PhpUnitGen written an output, because the
             // Laravel event output is not a testing one when using 5.8.
             //->expectsOutput('Test generated for "Http/Controllers/Dummy".')
@@ -102,7 +102,7 @@ class LaravelIntegrationTest extends TestCase
     public function testArtisanMakeListenerWorks(): void
     {
         $this->artisan('make:controller', ['name' => 'Dummy', '--resource' => true])
-            ->expectsOutput('Controller created successfully.')
+            ->expectsOutputToContain('Controller created successfully.')
             ->expectsOutput('Test generated for "Http/Controllers/Dummy".')
             ->assertExitCode(0);
 
