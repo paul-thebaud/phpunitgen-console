@@ -89,10 +89,8 @@ class LaravelIntegrationTest extends TestCase
     public function testArtisanMakeListenerWithEmptyClassGenerateWarning(): void
     {
         $this->artisan('make:controller', ['name' => 'Dummy'])
-            ->expectsOutputToContain('Controller created successfully.')
-            // We won't validate PhpUnitGen written an output, because the
-            // Laravel event output is not a testing one when using 5.8.
-            //->expectsOutput('Test generated for "Http/Controllers/Dummy".')
+            ->expectsOutputToContain("Controller [{$this->dummyControllerPath()}] created successfully.")
+            ->expectsOutputToContain('Test generation failed for "Http/Controllers/Dummy".')
             ->assertExitCode(0);
 
         $this->assertFalse(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
@@ -102,11 +100,26 @@ class LaravelIntegrationTest extends TestCase
     public function testArtisanMakeListenerWorks(): void
     {
         $this->artisan('make:controller', ['name' => 'Dummy', '--resource' => true])
-            ->expectsOutputToContain('Controller created successfully.')
-            ->expectsOutput('Test generated for "Http/Controllers/Dummy".')
+            ->expectsOutputToContain("Controller [{$this->dummyControllerPath()}] created successfully.")
+            ->expectsOutputToContain('Test generated for "Http/Controllers/Dummy".')
             ->assertExitCode(0);
 
         $this->assertTrue(File::exists(__DIR__.'/orchestra/testbench-core/laravel/app/Http/Controllers/DummyTest.php'));
         $this->assertTrue(File::exists(app_path('Http/Controllers/Dummy.php')));
+    }
+
+    /**
+     * Get the dummy generated controller path which is displayed by laravel on command output.
+     *
+     * @return string
+     */
+    private function dummyControllerPath(): string
+    {
+        $path = 'app/Http/Controllers/Dummy.php';
+        if (PHP_OS_FAMILY === 'Windows') {
+            return base_path($path);
+        }
+
+        return $path;
     }
 }
