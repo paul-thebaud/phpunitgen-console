@@ -1,5 +1,11 @@
 # Change Log
 
+## 3.1.0
+
+**Changed**
+
+- `CommandFinishedListener@handle` will now return sources count.
+
 ## 3.0.1
 
 **Fixed**
