@@ -80,7 +80,7 @@ class CommandFinishedListenerTest extends TestCase
 
         $this->filesystem->shouldReceive('has')->never();
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(0, $this->commandFinishedListener->handle($event));
     }
 
     public function testItIgnoresKOExitCode(): void
@@ -89,7 +89,7 @@ class CommandFinishedListenerTest extends TestCase
 
         $this->filesystem->shouldReceive('has')->never();
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(0, $this->commandFinishedListener->handle($event));
     }
 
     public function testItIgnoresWhenHelpRequested(): void
@@ -102,7 +102,7 @@ class CommandFinishedListenerTest extends TestCase
 
         $this->filesystem->shouldReceive('has')->never();
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(0, $this->commandFinishedListener->handle($event));
     }
 
     public function testItIgnoresWhenVersionRequested(): void
@@ -118,7 +118,7 @@ class CommandFinishedListenerTest extends TestCase
 
         $this->filesystem->shouldReceive('has')->never();
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(0, $this->commandFinishedListener->handle($event));
     }
 
     public function testItIgnoresWhenDisableGenerationOnMake(): void
@@ -139,7 +139,7 @@ class CommandFinishedListenerTest extends TestCase
             ->with('phpunitgen.php')
             ->andReturn('<?php return ["generateOnMake" => false];');
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(0, $this->commandFinishedListener->handle($event));
     }
 
     public function testItIgnoresWhenUnknownMake(): void
@@ -163,7 +163,7 @@ class CommandFinishedListenerTest extends TestCase
             ->with('phpunitgen.php')
             ->andReturn('<?php return [];');
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(0, $this->commandFinishedListener->handle($event));
     }
 
     public function testItRunsWithModelWithoutControllerOrError(): void
@@ -219,7 +219,7 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('write')
             ->with('tests/Unit/PostTest.php', Mockery::type('string'));
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(1, $this->commandFinishedListener->handle($event));
     }
 
     public function testItRunsWithModelAndWritesNothingWhenQuiet(): void
@@ -274,7 +274,7 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('write')
             ->with('tests/Unit/PostTest.php', Mockery::type('string'));
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(1, $this->commandFinishedListener->handle($event));
     }
 
     public function testItRunsWithModelAndControllerWithoutError(): void
@@ -351,7 +351,7 @@ class CommandFinishedListenerTest extends TestCase
                 Mockery::type('string')
             );
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(2, $this->commandFinishedListener->handle($event));
     }
 
     public function testItRunsWithModelWithoutControllerOrErrorUsingLaravel8Style(): void
@@ -410,7 +410,7 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('write')
             ->with('tests/Unit/Models/PostTest.php', Mockery::type('string'));
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(1, $this->commandFinishedListener->handle($event));
     }
 
     /**
@@ -466,7 +466,7 @@ class CommandFinishedListenerTest extends TestCase
         $this->filesystem->shouldReceive('write')
             ->with('tests/Unit/'.$expectedPath.'/FooTest.php', Mockery::type('string'));
 
-        $this->commandFinishedListener->handle($event);
+        $this->assertSame(1, $this->commandFinishedListener->handle($event));
     }
 
     public function runWithClassDataProvider(): array

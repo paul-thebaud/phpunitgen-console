@@ -78,27 +78,29 @@ class CommandFinishedListener
 
     /**
      * Handle the command finished event, and try to generate associated tests
-     * if possible and enabled.
+     * if possible and enabled. Returns count of managed sources.
      *
      * @param CommandFinished $event
+     *
+     * @return int
      */
-    public function handle(CommandFinished $event): void
+    public function handle(CommandFinished $event): int
     {
         $this->output = $event->output;
 
         if (! $this->shouldHandleEvent($event)) {
-            return;
+            return 0;
         }
 
         $config = $this->configResolver->resolve();
         if (! $config->generateOnMake()) {
-            return;
+            return 0;
         }
 
         $sources = $this->getSources($event->command, $event->input);
 
         if ($sources->isEmpty()) {
-            return;
+            return 0;
         }
 
         $sources->each(function (string $relativeSource) {
@@ -109,6 +111,8 @@ class CommandFinishedListener
 
             $this->writeRunnerResult($relativeSource, $returnCode);
         });
+
+        return $sources->count();
     }
 
     /*
