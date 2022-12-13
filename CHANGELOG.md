@@ -1,5 +1,11 @@
 # Change Log
 
+## 4.2.0
+
+**Added**
+
+- Add compatibility with `php@8.2`.
+
 ## 4.1.0
 
 **Changed**
