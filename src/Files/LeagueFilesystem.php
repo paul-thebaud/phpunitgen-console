@@ -59,7 +59,9 @@ class LeagueFilesystem implements FilesystemContract
             '/',
             null,
             LOCK_EX,
-            LocalFilesystemAdapter::SKIP_LINKS
+            LocalFilesystemAdapter::SKIP_LINKS,
+            null,
+            true
         );
 
         return new static(new Filesystem($localAdapter), getcwd());
