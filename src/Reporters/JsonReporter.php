@@ -27,7 +27,7 @@ final class JsonReporter extends AbstractReporter
                 'time'      => $event->getDuration(),
                 'memory'    => $event->getMemory(),
             ],
-            'results' => $this->sources->mapWithKeys(fn(string $source) => [
+            'results' => $this->sources->mapWithKeys(fn (string $source) => [
                 $source => $this->makeSourceResult($source),
             ])->all(),
         ], JSON_PRETTY_PRINT));

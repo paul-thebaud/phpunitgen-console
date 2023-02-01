@@ -93,10 +93,10 @@ final class TextReporter extends AbstractReporter
         $this->writeln()
             ->writeln('Generation is finished!')
             ->writeln()
-            ->writeln($this->sources->count() . ' source(s) identified')
-            ->success($this->successes->count() . ' success(es)')
-            ->warning($this->warnings->count() . ' warning(s)')
-            ->error($this->errors->count() . ' error(s)')
+            ->writeln($this->sources->count().' source(s) identified')
+            ->success($this->successes->count().' success(es)')
+            ->warning($this->warnings->count().' warning(s)')
+            ->error($this->errors->count().' error(s)')
             ->writeln()
             ->writeln("Execution time: {$this->getFormattedDuration($event)}")
             ->writeln("Memory usage: {$this->getFormattedMemory($event)}");
@@ -180,7 +180,7 @@ final class TextReporter extends AbstractReporter
      */
     private function getFormattedMemory(StopwatchEvent $stopwatchEvent): string
     {
-        return number_format($stopwatchEvent->getMemory() / 1024 / 1024, 2) . ' MB';
+        return number_format($stopwatchEvent->getMemory() / 1024 / 1024, 2).' MB';
     }
 
     /**
@@ -192,6 +192,6 @@ final class TextReporter extends AbstractReporter
      */
     private function getFormattedDuration(StopwatchEvent $stopwatchEvent): string
     {
-        return number_format($stopwatchEvent->getDuration() / 1000, 3) . ' s';
+        return number_format($stopwatchEvent->getDuration() / 1000, 3).' s';
     }
 }

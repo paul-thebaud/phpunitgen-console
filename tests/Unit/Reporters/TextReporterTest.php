@@ -220,13 +220,13 @@ class TextReporterTest extends TestCase
 
         $sources = new Collection();
         for ($i = 0; $i < 50; $i++) {
-            $sources->add('foo' . $i);
+            $sources->add('foo'.$i);
         }
 
         $this->textReporter->onStart(ConsoleConfig::make(), $sources);
 
         for ($i = 0; $i < 49; $i++) {
-            $this->textReporter->getSuccesses()->add('foo' . $i);
+            $this->textReporter->getSuccesses()->add('foo'.$i);
         }
 
         $this->textReporter->onSuccess('foo', 'bar');
@@ -280,13 +280,13 @@ class TextReporterTest extends TestCase
 
         $sources = new Collection();
         for ($i = 0; $i < 45; $i++) {
-            $sources->add('foo' . $i);
+            $sources->add('foo'.$i);
         }
 
         $this->textReporter->onStart(ConsoleConfig::make(), $sources);
 
         for ($i = 0; $i < 44; $i++) {
-            $this->textReporter->getSuccesses()->add('foo' . $i);
+            $this->textReporter->getSuccesses()->add('foo'.$i);
         }
 
         $this->textReporter->onSuccess('foo', 'bar');

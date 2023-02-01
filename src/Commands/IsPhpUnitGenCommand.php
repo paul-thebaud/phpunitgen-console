@@ -32,7 +32,7 @@ trait IsPhpUnitGenCommand
         $this->setName('phpunitgen')
             ->setDescription('Generate unit tests\' skeletons for a file/directory')
             ->setHelp(
-                'Use it to generate your unit tests skeletons. See documentation on ' .
+                'Use it to generate your unit tests skeletons. See documentation on '.
                 'https://phpunitgen.io/doc/todo'
             )
             ->addOption(
