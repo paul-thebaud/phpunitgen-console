@@ -6,12 +6,13 @@ namespace PhpUnitGen\Console\Execution;
 
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Config\ConsoleConfig;
-use PhpUnitGen\Console\Contracts\Execution\ProcessHandler;
 use PhpUnitGen\Console\Contracts\Execution\Runner as RunnerContract;
 use PhpUnitGen\Console\Contracts\Files\FileBackup;
 use PhpUnitGen\Console\Contracts\Files\Filesystem;
 use PhpUnitGen\Console\Contracts\Files\SourcesResolver;
 use PhpUnitGen\Console\Contracts\Files\TargetResolver;
+use PhpUnitGen\Console\Contracts\Reporters\Reporter;
+use PhpUnitGen\Console\Contracts\Reporters\ReporterFactory;
 use PhpUnitGen\Core\Container\CoreContainerFactory;
 use PhpUnitGen\Core\Contracts\Config\Config;
 use PhpUnitGen\Core\Contracts\Generators\DelegateTestGenerator;
@@ -58,9 +59,9 @@ class Runner implements RunnerContract
     protected $fileBackup;
 
     /**
-     * @var ProcessHandler
+     * @var ReporterFactory
      */
-    protected $processHandler;
+    protected $reporterFactory;
 
     /**
      * Runner constructor.
@@ -70,7 +71,7 @@ class Runner implements RunnerContract
      * @param SourcesResolver $sourcesResolver
      * @param TargetResolver  $targetResolver
      * @param FileBackup      $fileBackup
-     * @param ProcessHandler  $processHandler
+     * @param ReporterFactory $reporterFactory
      */
     public function __construct(
         ConfigResolver $configResolver,
@@ -78,14 +79,14 @@ class Runner implements RunnerContract
         SourcesResolver $sourcesResolver,
         TargetResolver $targetResolver,
         FileBackup $fileBackup,
-        ProcessHandler $processHandler
+        ReporterFactory $reporterFactory,
     ) {
         $this->configResolver = $configResolver;
         $this->filesystem = $filesystem;
         $this->sourcesResolver = $sourcesResolver;
         $this->targetResolver = $targetResolver;
         $this->fileBackup = $fileBackup;
-        $this->processHandler = $processHandler;
+        $this->reporterFactory = $reporterFactory;
     }
 
     /**
@@ -93,29 +94,25 @@ class Runner implements RunnerContract
      */
     public function run(InputInterface $input, OutputInterface $output): int
     {
-        $this->processHandler->initialize($output);
+        $reporter = $this->reporterFactory->makeReporter($input, $output);
 
         try {
             $config = $this->resolveConfig($input);
             $sources = $this->resolveSources($input, $config);
             $target = $this->resolveTarget($input);
 
-            $this->processHandler->handleStart($config, $sources);
+            $reporter->onStart($config, $sources);
 
             $application = $this->buildCoreApplication($config);
 
-            $sources->each(function (string $source) use ($application, $config, $target) {
-                $this->runGeneration($application, $config, $source, $target);
+            $sources->each(function (string $source) use ($application, $reporter, $config, $target) {
+                $this->runGeneration($application, $reporter, $config, $source, $target);
             });
         } catch (Throwable $exception) {
-            $this->processHandler->handleCriticalError($exception);
-
-            return 1;
+            return $reporter->onCriticalError($exception);
         }
 
-        $this->processHandler->handleEnd();
-
-        return $this->determineExitCode();
+        return $reporter->terminate();
     }
 
     /**
@@ -191,12 +188,14 @@ class Runner implements RunnerContract
      * Run generation for source.
      *
      * @param CoreApplication $application
+     * @param Reporter        $reporter
      * @param ConsoleConfig   $config
      * @param string          $sourcePath
      * @param string          $targetPath
      */
     protected function runGeneration(
         CoreApplication $application,
+        Reporter $reporter,
         ConsoleConfig $config,
         string $sourcePath,
         string $targetPath
@@ -212,7 +211,7 @@ class Runner implements RunnerContract
             }
 
             if (! $testGenerator->canGenerateFor($reflectionClass)) {
-                $this->processHandler->handleWarning(
+                $reporter->onWarning(
                     $sourcePath,
                     'cannot generate tests, file is an interface/anonymous class or does not contain any public method'
                 );
@@ -233,7 +232,7 @@ class Runner implements RunnerContract
 
             if ($this->filesystem->has($realTargetPath)) {
                 if ($config->overwriteFiles() !== true) {
-                    $this->processHandler->handleWarning(
+                    $reporter->onWarning(
                         $sourcePath,
                         "cannot generate tests to {$realTargetPath}, file exists and overwriting is disabled"
                     );
@@ -248,29 +247,11 @@ class Runner implements RunnerContract
 
             $this->filesystem->write($realTargetPath, $rendered->toString());
         } catch (Throwable $exception) {
-            $this->processHandler->handleError($sourcePath, $exception);
+            $reporter->onError($sourcePath, $exception);
 
             return;
         }
 
-        $this->processHandler->handleSuccess($sourcePath, $realTargetPath);
-    }
-
-    /**
-     * Determine the exit code to use depending on the process handler final state.
-     *
-     * @return int
-     */
-    protected function determineExitCode(): int
-    {
-        if ($this->processHandler->hasErrors()) {
-            return 100;
-        }
-
-        if ($this->processHandler->hasWarnings()) {
-            return 101;
-        }
-
-        return 0;
+        $reporter->onSuccess($sourcePath, $realTargetPath);
     }
 }

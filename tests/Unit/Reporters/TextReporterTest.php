@@ -2,13 +2,13 @@
 
 declare(strict_types=1);
 
-namespace Tests\PhpUnitGen\Console\Unit\Execution;
+namespace Tests\PhpUnitGen\Console\Unit\Reporters;
 
 use Exception;
 use Mockery;
 use Mockery\Mock;
 use PhpUnitGen\Console\Config\ConsoleConfig;
-use PhpUnitGen\Console\Execution\ProcessHandler;
+use PhpUnitGen\Console\Reporters\TextReporter;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 use Symfony\Component\Stopwatch\StopwatchEvent;
@@ -17,12 +17,13 @@ use Tests\PhpUnitGen\Console\TestCase;
 use Tightenco\Collect\Support\Collection;
 
 /**
- * Class ProcessHandlerTest.
+ * Class TextReporterTest.
  *
- * @covers \PhpUnitGen\Console\Execution\ProcessHandler
+ * @covers \PhpUnitGen\Console\Reporters\TextReporter
+ * @covers \PhpUnitGen\Console\Reporters\AbstractReporter
  * @covers \PhpUnitGen\Console\Commands\HasOutput
  */
-class ProcessHandlerTest extends TestCase
+class TextReporterTest extends TestCase
 {
     /**
      * @var Stopwatch|Mock
@@ -35,9 +36,9 @@ class ProcessHandlerTest extends TestCase
     protected $output;
 
     /**
-     * @var ProcessHandler
+     * @var TextReporter
      */
-    protected $processHandler;
+    protected $textReporter;
 
     /**
      * {@inheritdoc}
@@ -52,13 +53,28 @@ class ProcessHandlerTest extends TestCase
         $this->stopwatch->shouldReceive('start')->once()
             ->with('phpunitgen');
 
-        $this->processHandler = new ProcessHandler($this->stopwatch);
-        $this->processHandler->initialize($this->output);
+        $this->textReporter = new TextReporter($this->output);
+        $this->textReporter->withStopwatch($this->stopwatch);
+    }
+
+    public function assertApplicationIsWritten(): void
+    {
+        $this->output->shouldReceive('write')
+            ->once()
+            ->with('PhpUnitGen ', false);
+        $this->output->shouldReceive('write')
+            ->once()
+            ->with('<fg=green>5.0.0</>', true);
+        $this->output->shouldReceive('write')
+            ->once()
+            ->with('', true);
     }
 
     public function testItStartsWithDefaultConfig(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -67,17 +83,19 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('', true);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection(['foo']));
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection(['foo']));
 
-        $this->assertSame(1, $this->processHandler->getSources()->count());
-        $this->assertSame(0, $this->processHandler->getSuccesses()->count());
-        $this->assertSame(0, $this->processHandler->getWarnings()->count());
-        $this->assertSame(0, $this->processHandler->getErrors()->count());
+        $this->assertSame(1, $this->textReporter->getSources()->count());
+        $this->assertSame(0, $this->textReporter->getSuccesses()->count());
+        $this->assertSame(0, $this->textReporter->getWarnings()->count());
+        $this->assertSame(0, $this->textReporter->getErrors()->count());
     }
 
     public function testItStartsWithDetectedConfig(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -86,12 +104,12 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('', true);
 
-        $this->processHandler->handleStart(ConsoleConfig::make()->setPath('phpunitgen.php'), new Collection(['foo']));
+        $this->textReporter->onStart(ConsoleConfig::make()->setPath('phpunitgen.php'), new Collection(['foo']));
 
-        $this->assertSame(1, $this->processHandler->getSources()->count());
-        $this->assertSame(0, $this->processHandler->getSuccesses()->count());
-        $this->assertSame(0, $this->processHandler->getWarnings()->count());
-        $this->assertSame(0, $this->processHandler->getErrors()->count());
+        $this->assertSame(1, $this->textReporter->getSources()->count());
+        $this->assertSame(0, $this->textReporter->getSuccesses()->count());
+        $this->assertSame(0, $this->textReporter->getWarnings()->count());
+        $this->assertSame(0, $this->textReporter->getErrors()->count());
     }
 
     public function testItManagesQuietOutput(): void
@@ -100,12 +118,14 @@ class ProcessHandlerTest extends TestCase
 
         $this->output->shouldReceive('write')->never();
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection());
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection());
     }
 
     public function testItHandlesSuccessWithRemaining(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -117,19 +137,21 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('.', false);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection(['foo', 'baz']));
-        $this->processHandler->handleSuccess('foo', 'bar');
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection(['foo', 'baz']));
+        $this->textReporter->onSuccess('foo', 'bar');
 
         $this->assertSame([
             'foo' => 'bar',
-        ], $this->processHandler->getSuccesses()->toArray());
-        $this->assertSame(0, $this->processHandler->getWarnings()->count());
-        $this->assertSame(0, $this->processHandler->getErrors()->count());
+        ], $this->textReporter->getSuccesses()->toArray());
+        $this->assertSame(0, $this->textReporter->getWarnings()->count());
+        $this->assertSame(0, $this->textReporter->getErrors()->count());
     }
 
     public function testItHandlesWarningWithRemaining(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -141,19 +163,21 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('<fg=yellow>W</>', false);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection(['foo', 'baz']));
-        $this->processHandler->handleWarning('foo', 'bar');
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection(['foo', 'baz']));
+        $this->textReporter->onWarning('foo', 'bar');
 
-        $this->assertSame(0, $this->processHandler->getSuccesses()->count());
+        $this->assertSame(0, $this->textReporter->getSuccesses()->count());
         $this->assertSame([
             'foo' => 'bar',
-        ], $this->processHandler->getWarnings()->toArray());
-        $this->assertSame(0, $this->processHandler->getErrors()->count());
+        ], $this->textReporter->getWarnings()->toArray());
+        $this->assertSame(0, $this->textReporter->getErrors()->count());
     }
 
     public function testItHandlesErrorWithRemaining(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -165,19 +189,21 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('<fg=red>E</>', false);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection(['foo', 'baz']));
-        $this->processHandler->handleError('foo', $exception = new Exception('message'));
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection(['foo', 'baz']));
+        $this->textReporter->onError('foo', $exception = new Exception('message'));
 
-        $this->assertSame(0, $this->processHandler->getSuccesses()->count());
-        $this->assertSame(0, $this->processHandler->getWarnings()->count());
+        $this->assertSame(0, $this->textReporter->getSuccesses()->count());
+        $this->assertSame(0, $this->textReporter->getWarnings()->count());
         $this->assertSame([
             'foo' => $exception,
-        ], $this->processHandler->getErrors()->toArray());
+        ], $this->textReporter->getErrors()->toArray());
     }
 
     public function testItHandlesSuccessWithoutRemainingAndEndOfLine(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -194,19 +220,19 @@ class ProcessHandlerTest extends TestCase
 
         $sources = new Collection();
         for ($i = 0; $i < 50; $i++) {
-            $sources->add('foo'.$i);
+            $sources->add('foo' . $i);
         }
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), $sources);
+        $this->textReporter->onStart(ConsoleConfig::make(), $sources);
 
         for ($i = 0; $i < 49; $i++) {
-            $this->processHandler->getSuccesses()->add('foo'.$i);
+            $this->textReporter->getSuccesses()->add('foo' . $i);
         }
 
-        $this->processHandler->handleSuccess('foo', 'bar');
+        $this->textReporter->onSuccess('foo', 'bar');
     }
 
-    public function testItHandlesCriticalErrorWithVeryVerbose(): void
+    public function testItHandlesCriticalError(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
         $this->output->shouldReceive('isVeryVerbose')->withNoArgs()->andReturnTrue();
@@ -216,7 +242,7 @@ class ProcessHandlerTest extends TestCase
             ->with('', true);
         $this->output->shouldReceive('write')
             ->once()
-            ->with('<fg=red>Critical error during execution: foo bar</>', true);
+            ->with('<fg=red>Critical error during execution:</>', true);
 
         $dumped = false;
         $exception = new Exception('foo bar');
@@ -225,42 +251,16 @@ class ProcessHandlerTest extends TestCase
             $dumped = $exception === $var;
         });
 
-        $this->processHandler->handleCriticalError($exception);
+        $this->textReporter->onCriticalError($exception);
 
         $this->assertTrue($dumped);
-    }
-
-    public function testItHandlesCriticalErrorWithoutVeryVerbose(): void
-    {
-        $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
-        $this->output->shouldReceive('isVeryVerbose')->withNoArgs()->andReturnFalse();
-
-        $this->output->shouldReceive('write')
-            ->once()
-            ->with('', true);
-        $this->output->shouldReceive('write')
-            ->once()
-            ->with('<fg=red>Critical error during execution: foo bar</>', true);
-        $this->output->shouldReceive('write')
-            ->once()
-            ->with('', true);
-        $this->output->shouldReceive('write')
-            ->once()
-            ->with('Increase verbosity to see errors dump.', true);
-
-        $dumped = false;
-        VarDumper::setHandler(function () use (&$dumped) {
-            $dumped = true;
-        });
-
-        $this->processHandler->handleCriticalError(new Exception('foo bar'));
-
-        $this->assertFalse($dumped);
     }
 
     public function testItHandlesSuccessWithoutRemainingAndNotEndOfLine(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -280,21 +280,23 @@ class ProcessHandlerTest extends TestCase
 
         $sources = new Collection();
         for ($i = 0; $i < 45; $i++) {
-            $sources->add('foo'.$i);
+            $sources->add('foo' . $i);
         }
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), $sources);
+        $this->textReporter->onStart(ConsoleConfig::make(), $sources);
 
         for ($i = 0; $i < 44; $i++) {
-            $this->processHandler->getSuccesses()->add('foo'.$i);
+            $this->textReporter->getSuccesses()->add('foo' . $i);
         }
 
-        $this->processHandler->handleSuccess('foo', 'bar');
+        $this->textReporter->onSuccess('foo', 'bar');
     }
 
     public function testItHandlesEndWithoutWarningsOrErrors(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -303,7 +305,7 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('', true);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection());
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection());
 
         $stopWatchEvent = Mockery::mock(StopwatchEvent::class);
 
@@ -347,13 +349,15 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('Memory usage: 75.00 MB', true);
 
-        $this->processHandler->handleEnd();
+        $this->assertSame(0, $this->textReporter->terminate());
     }
 
     public function testItHandlesEndWithWarningsOrErrorsInNormalVerbosity(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
         $this->output->shouldReceive('isVeryVerbose')->withNoArgs()->andReturnFalse();
+
+        $this->assertApplicationIsWritten();
 
         $this->output->shouldReceive('write')
             ->once()
@@ -362,15 +366,15 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('', true);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection([
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection([
             'foo',
             'bar',
             'baz',
         ]));
 
-        $this->processHandler->getSuccesses()->put('foo', 'fooTest');
-        $this->processHandler->getWarnings()->put('foo', 'foo warning');
-        $this->processHandler->getErrors()->put('baz', new Exception('baz exception'));
+        $this->textReporter->getSuccesses()->put('foo', 'fooTest');
+        $this->textReporter->getWarnings()->put('foo', 'foo warning');
+        $this->textReporter->getErrors()->put('baz', new Exception('baz exception'));
 
         $stopWatchEvent = Mockery::mock(StopwatchEvent::class);
 
@@ -437,7 +441,7 @@ class ProcessHandlerTest extends TestCase
             $dumped = true;
         });
 
-        $this->processHandler->handleEnd();
+        $this->assertSame(100, $this->textReporter->terminate());
 
         $this->assertFalse($dumped);
     }
@@ -447,6 +451,8 @@ class ProcessHandlerTest extends TestCase
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
         $this->output->shouldReceive('isVeryVerbose')->withNoArgs()->andReturnTrue();
 
+        $this->assertApplicationIsWritten();
+
         $this->output->shouldReceive('write')
             ->once()
             ->with('Starting process using default config.', true);
@@ -454,7 +460,7 @@ class ProcessHandlerTest extends TestCase
             ->once()
             ->with('', true);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection([
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection([
             'foo',
             'bar',
             'baz',
@@ -462,9 +468,9 @@ class ProcessHandlerTest extends TestCase
 
         $exception = new Exception('baz exception');
 
-        $this->processHandler->getSuccesses()->put('foo', 'fooTest');
-        $this->processHandler->getWarnings()->put('foo', 'foo warning');
-        $this->processHandler->getErrors()->put('baz', $exception);
+        $this->textReporter->getSuccesses()->put('foo', 'fooTest');
+        $this->textReporter->getWarnings()->put('foo', 'foo warning');
+        $this->textReporter->getErrors()->put('baz', $exception);
 
         $stopWatchEvent = Mockery::mock(StopwatchEvent::class);
 
@@ -525,36 +531,38 @@ class ProcessHandlerTest extends TestCase
             $dumped = $var === $exception;
         });
 
-        $this->processHandler->handleEnd();
-
+        $this->assertSame(100, $this->textReporter->terminate());
         $this->assertTrue($dumped);
     }
 
-    public function testItChecksWarningsOrErrorsRecord(): void
+    public function testItDetermineExitCode(): void
     {
         $this->output->shouldReceive('isQuiet')->withNoArgs()->andReturnFalse();
         $this->output->shouldReceive('isVeryVerbose')->withNoArgs()->andReturnTrue();
+        $this->output->shouldReceive('write')->withAnyArgs();
 
-        $this->output->shouldReceive('write')
-            ->once()
-            ->with('Starting process using default config.', true);
-        $this->output->shouldReceive('write')
-            ->once()
-            ->with('', true);
+        $stopWatchEvent = Mockery::mock(StopwatchEvent::class);
 
-        $this->processHandler->handleStart(ConsoleConfig::make(), new Collection());
+        $stopWatchEvent->shouldReceive([
+            'getMemory'   => 78643200,
+            'getDuration' => 3500,
+        ]);
 
-        $this->assertFalse($this->processHandler->hasWarnings());
-        $this->assertFalse($this->processHandler->hasErrors());
+        $this->stopwatch->shouldReceive('stop')
+            ->times(3)
+            ->with('phpunitgen')
+            ->andReturn($stopWatchEvent);
 
-        $this->processHandler->getWarnings()->put('foo', 'bar');
+        $this->textReporter->onStart(ConsoleConfig::make(), new Collection());
 
-        $this->assertTrue($this->processHandler->hasWarnings());
-        $this->assertFalse($this->processHandler->hasErrors());
+        $this->assertSame(0, $this->textReporter->terminate());
 
-        $this->processHandler->getErrors()->put('foo', 'bar');
+        $this->textReporter->onWarning('foo', 'bar');
 
-        $this->assertTrue($this->processHandler->hasWarnings());
-        $this->assertTrue($this->processHandler->hasErrors());
+        $this->assertSame(101, $this->textReporter->terminate());
+
+        $this->textReporter->onError('foo', new Exception('bar'));
+
+        $this->assertSame(100, $this->textReporter->terminate());
     }
 }

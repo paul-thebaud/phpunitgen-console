@@ -9,11 +9,12 @@ use Mockery;
 use Mockery\Mock;
 use PhpUnitGen\Console\Config\ConsoleConfig;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver;
-use PhpUnitGen\Console\Contracts\Execution\ProcessHandler;
 use PhpUnitGen\Console\Contracts\Files\FileBackup;
 use PhpUnitGen\Console\Contracts\Files\Filesystem;
 use PhpUnitGen\Console\Contracts\Files\SourcesResolver;
 use PhpUnitGen\Console\Contracts\Files\TargetResolver;
+use PhpUnitGen\Console\Contracts\Reporters\Reporter;
+use PhpUnitGen\Console\Contracts\Reporters\ReporterFactory;
 use PhpUnitGen\Console\Execution\Runner;
 use PhpUnitGen\Core\Contracts\Generators\Factories\ClassFactory;
 use PhpUnitGen\Core\Exceptions\InvalidArgumentException;
@@ -55,9 +56,14 @@ class RunnerTest extends TestCase
     protected $fileBackup;
 
     /**
-     * @var ProcessHandler|Mock
+     * @var Reporter|Mock
      */
-    protected $processHandler;
+    protected $reporter;
+
+    /**
+     * @var ReporterFactory|Mock
+     */
+    protected $reporterFactory;
 
     /**
      * @var InputInterface|Mock
@@ -86,7 +92,8 @@ class RunnerTest extends TestCase
         $this->sourcesResolver = Mockery::mock(SourcesResolver::class);
         $this->targetResolver = Mockery::mock(TargetResolver::class);
         $this->fileBackup = Mockery::mock(FileBackup::class);
-        $this->processHandler = Mockery::mock(ProcessHandler::class);
+        $this->reporter = Mockery::mock(Reporter::class);
+        $this->reporterFactory = Mockery::mock(ReporterFactory::class);
         $this->input = Mockery::mock(InputInterface::class);
         $this->output = Mockery::mock(OutputInterface::class);
         $this->runner = new Runner(
@@ -95,18 +102,22 @@ class RunnerTest extends TestCase
             $this->sourcesResolver,
             $this->targetResolver,
             $this->fileBackup,
-            $this->processHandler
+            $this->reporterFactory
         );
+
+        $this->reporterFactory->shouldReceive('makeReporter')
+            ->once()
+            ->with($this->input, $this->output)
+            ->andReturn($this->reporter);
     }
 
     public function testItRunsWithACriticalError(): void
     {
         $exception = new Exception('critical error');
 
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleCriticalError')->once()
-            ->with($exception);
+        $this->reporter->shouldReceive('onCriticalError')->once()
+            ->with($exception)
+            ->andReturn(1);
 
         $this->configResolver->shouldReceive('resolve')->once()
             ->with($this->input)
@@ -117,13 +128,12 @@ class RunnerTest extends TestCase
 
     public function testItRunsWithACriticalErrorWhenNoSource(): void
     {
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleCriticalError')->once()
+        $this->reporter->shouldReceive('onCriticalError')->once()
             ->with(Mockery::on(function ($exception) {
                 return $exception instanceof InvalidArgumentException
                     && $exception->getMessage() === 'no source to generate tests for';
-            }));
+            }))
+            ->andReturn(1);
 
         $config = ConsoleConfig::make();
 
@@ -143,13 +153,12 @@ class RunnerTest extends TestCase
 
     public function testItRunsWithACriticalErrorWhenTargetIsAFile(): void
     {
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleCriticalError')->once()
+        $this->reporter->shouldReceive('onCriticalError')->once()
             ->with(Mockery::on(function ($exception) {
                 return $exception instanceof InvalidArgumentException
                     && $exception->getMessage() === 'target cannot be an existing file';
-            }));
+            }))
+            ->andReturn(1);
 
         $config = ConsoleConfig::make();
 
@@ -179,20 +188,17 @@ class RunnerTest extends TestCase
         $exception = new Exception('baz error');
         $sources = new Collection(['foo', 'bar', 'baz']);
 
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleStart')->once()
+        $this->reporter->shouldReceive('onStart')->once()
             ->with($config, $sources);
-        $this->processHandler->shouldReceive('handleSuccess')->once()
+        $this->reporter->shouldReceive('onSuccess')->once()
             ->with('foo', 'tests/fooTest');
-        $this->processHandler->shouldReceive('handleWarning')->once()
+        $this->reporter->shouldReceive('onWarning')->once()
             ->with('bar', 'cannot generate tests to tests/barTest, file exists and overwriting is disabled');
-        $this->processHandler->shouldReceive('handleError')->once()
+        $this->reporter->shouldReceive('onError')->once()
             ->with('baz', $exception);
-        $this->processHandler->shouldReceive('handleEnd')->once()
-            ->withNoArgs();
-        $this->processHandler->shouldReceive('hasErrors')
-            ->andReturnTrue();
+        $this->reporter->shouldReceive('terminate')->once()
+            ->withNoArgs()
+            ->andReturn(100);
 
         $this->input->shouldReceive('getArgument')->once()
             ->with('source')
@@ -243,18 +249,13 @@ class RunnerTest extends TestCase
         $config = ConsoleConfig::make(['overwriteFiles' => true]);
         $sources = new Collection(['foo']);
 
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleStart')->once()
+        $this->reporter->shouldReceive('onStart')->once()
             ->with($config, $sources);
-        $this->processHandler->shouldReceive('handleSuccess')->once()
+        $this->reporter->shouldReceive('onSuccess')->once()
             ->with('foo', 'tests/fooTest');
-        $this->processHandler->shouldReceive('handleEnd')->once()
-            ->withNoArgs();
-        $this->processHandler->shouldReceive('hasErrors')
-            ->andReturnFalse();
-        $this->processHandler->shouldReceive('hasWarnings')
-            ->andReturnFalse();
+        $this->reporter->shouldReceive('terminate')->once()
+            ->withNoArgs()
+            ->andReturn(0);
 
         $this->input->shouldReceive('getArgument')->once()
             ->with('source')
@@ -296,18 +297,13 @@ class RunnerTest extends TestCase
         $config = ConsoleConfig::make();
         $sources = new Collection(['foo']);
 
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleStart')->once()
+        $this->reporter->shouldReceive('onStart')->once()
             ->with($config, $sources);
-        $this->processHandler->shouldReceive('handleWarning')->once()
+        $this->reporter->shouldReceive('onWarning')->once()
             ->with('foo', 'cannot generate tests to tests/fooTest, file exists and overwriting is disabled');
-        $this->processHandler->shouldReceive('handleEnd')->once()
-            ->withNoArgs();
-        $this->processHandler->shouldReceive('hasErrors')
-            ->andReturnFalse();
-        $this->processHandler->shouldReceive('hasWarnings')
-            ->andReturnTrue();
+        $this->reporter->shouldReceive('terminate')->once()
+            ->withNoArgs()
+            ->andReturn(101);
 
         $this->input->shouldReceive('getArgument')->once()
             ->with('source')
@@ -345,18 +341,14 @@ class RunnerTest extends TestCase
         $config = ConsoleConfig::make();
         $sources = new Collection(['foo']);
 
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleStart')->once()
+        $this->reporter->shouldReceive('onStart')->once()
             ->with($config, $sources);
-        $this->processHandler->shouldReceive('handleWarning')->once()
-            ->with('foo', 'cannot generate tests, file is an interface/anonymous class or does not contain any public method');
-        $this->processHandler->shouldReceive('handleEnd')->once()
-            ->withNoArgs();
-        $this->processHandler->shouldReceive('hasErrors')
-            ->andReturnFalse();
-        $this->processHandler->shouldReceive('hasWarnings')
-            ->andReturnTrue();
+        $this->reporter->shouldReceive('onWarning')->once()
+            ->with('foo',
+                'cannot generate tests, file is an interface/anonymous class or does not contain any public method');
+        $this->reporter->shouldReceive('terminate')->once()
+            ->withNoArgs()
+            ->andReturn(101);
 
         $this->input->shouldReceive('getArgument')->once()
             ->with('source')
@@ -392,18 +384,14 @@ class RunnerTest extends TestCase
         $config = ConsoleConfig::make();
         $sources = new Collection(['foo']);
 
-        $this->processHandler->shouldReceive('initialize')->once()
-            ->with($this->output);
-        $this->processHandler->shouldReceive('handleStart')->once()
+        $this->reporter->shouldReceive('onStart')->once()
             ->with($config, $sources);
-        $this->processHandler->shouldReceive('handleWarning')->once()
-            ->with('foo', 'cannot generate tests, file is an interface/anonymous class or does not contain any public method');
-        $this->processHandler->shouldReceive('handleEnd')->once()
-            ->withNoArgs();
-        $this->processHandler->shouldReceive('hasErrors')
-            ->andReturnFalse();
-        $this->processHandler->shouldReceive('hasWarnings')
-            ->andReturnTrue();
+        $this->reporter->shouldReceive('onWarning')->once()
+            ->with('foo',
+                'cannot generate tests, file is an interface/anonymous class or does not contain any public method');
+        $this->reporter->shouldReceive('terminate')->once()
+            ->withNoArgs()
+            ->andReturn(101);
 
         $this->input->shouldReceive('getArgument')->once()
             ->with('source')

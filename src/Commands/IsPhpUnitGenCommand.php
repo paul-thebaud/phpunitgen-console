@@ -32,7 +32,7 @@ trait IsPhpUnitGenCommand
         $this->setName('phpunitgen')
             ->setDescription('Generate unit tests\' skeletons for a file/directory')
             ->setHelp(
-                'Use it to generate your unit tests skeletons. See documentation on '.
+                'Use it to generate your unit tests skeletons. See documentation on ' .
                 'https://phpunitgen.io/doc/todo'
             )
             ->addOption(
@@ -46,6 +46,12 @@ trait IsPhpUnitGenCommand
                 'O',
                 InputOption::VALUE_NONE,
                 'Overwrite existing files with PhpUnitGen generated files'
+            )
+            ->addOption(
+                'json',
+                null,
+                InputOption::VALUE_NONE,
+                'Print a JSON report instead of the classical text report'
             )
             ->addArgument(
                 'source',

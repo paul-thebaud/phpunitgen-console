@@ -8,8 +8,6 @@ use PhpUnitGen\Console\Commands\RunCommand;
 use PhpUnitGen\Console\Container\ConsoleContainerFactory;
 use Psr\Container\ContainerInterface;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class ConsoleApplication.
@@ -23,7 +21,7 @@ class ConsoleApplication extends Application
     /**
      * The current phpunitgen-console version.
      */
-    public const VERSION = '4.2.0';
+    public const VERSION = '5.0.0';
 
     /**
      * @var ContainerInterface
@@ -55,17 +53,5 @@ class ConsoleApplication extends Application
     public static function make(): self
     {
         return new static(ConsoleContainerFactory::make());
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function doRun(InputInterface $input, OutputInterface $output)
-    {
-        if (! $output->isQuiet()) {
-            $output->writeln($this->getLongVersion()."\n");
-        }
-
-        return parent::doRun($input, $output);
     }
 }

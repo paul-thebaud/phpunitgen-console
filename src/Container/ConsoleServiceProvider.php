@@ -7,18 +7,18 @@ namespace PhpUnitGen\Console\Container;
 use League\Container\ReflectionContainer;
 use PhpUnitGen\Console\Config\ConfigResolver;
 use PhpUnitGen\Console\Contracts\Config\ConfigResolver as ConfigResolverContract;
-use PhpUnitGen\Console\Contracts\Execution\ProcessHandler as ProcessHandlerContract;
 use PhpUnitGen\Console\Contracts\Execution\Runner as RunnerContract;
 use PhpUnitGen\Console\Contracts\Files\FileBackup as FileBackupContract;
 use PhpUnitGen\Console\Contracts\Files\Filesystem as FilesystemContract;
 use PhpUnitGen\Console\Contracts\Files\SourcesResolver as SourcesResolverContract;
 use PhpUnitGen\Console\Contracts\Files\TargetResolver as TargetResolverContract;
-use PhpUnitGen\Console\Execution\ProcessHandler;
+use PhpUnitGen\Console\Contracts\Reporters\ReporterFactory as ReporterFactoryContract;
 use PhpUnitGen\Console\Execution\Runner;
 use PhpUnitGen\Console\Files\FileBackup;
 use PhpUnitGen\Console\Files\LeagueFilesystem;
 use PhpUnitGen\Console\Files\SourcesResolver;
 use PhpUnitGen\Console\Files\TargetResolver;
+use PhpUnitGen\Console\Reporters\ReporterFactory;
 use PhpUnitGen\Core\Container\ReflectionServiceProvider;
 
 /**
@@ -38,7 +38,7 @@ class ConsoleServiceProvider extends ReflectionServiceProvider
         SourcesResolverContract::class => SourcesResolver::class,
         TargetResolverContract::class  => TargetResolver::class,
         FileBackupContract::class      => FileBackup::class,
-        ProcessHandlerContract::class  => ProcessHandler::class,
+        ReporterFactoryContract::class => ReporterFactory::class,
         RunnerContract::class          => Runner::class,
     ];
 
@@ -51,7 +51,7 @@ class ConsoleServiceProvider extends ReflectionServiceProvider
         SourcesResolverContract::class,
         TargetResolverContract::class,
         FileBackupContract::class,
-        ProcessHandlerContract::class,
+        ReporterFactoryContract::class,
         RunnerContract::class,
     ];
 
