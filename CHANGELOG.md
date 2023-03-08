@@ -1,5 +1,11 @@
 # Change Log
 
+## 5.0.0
+
+**Added**
+
+- Add a `--json` option to get a JSON formatted report of the result.
+
 ## 4.2.0
 
 **Added**
