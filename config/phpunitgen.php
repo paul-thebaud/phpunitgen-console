@@ -72,7 +72,8 @@ return [
      | Contract implementations to use.
      |
      | Tells which implementation you want to use when PhpUnitGen requires a
-     | specific contract.
+     | specific contract. Please see
+     | https://phpunitgen.io/docs#/en/configuration?id=implementations-to-use
      |--------------------------------------------------------------------------
      */
     'implementations'          => DelegateTestGenerator::implementations(),
