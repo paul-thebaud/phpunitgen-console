@@ -1,0 +1,8 @@
+services:
+  php:
+    container_name: php
+    build: .
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+    tty: true
