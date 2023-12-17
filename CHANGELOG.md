@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.0.1
+
+**Changed**
+
+- Printer version number from `5.0.0` to `6.0.1`.
+
 ## 6.0.0
 
 **Added**
