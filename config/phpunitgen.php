@@ -173,6 +173,17 @@ return [
 
     /*
      |--------------------------------------------------------------------------
+     | PHP header documentation lines.
+     |
+     | The documentation header to append to generated files.
+     | Should be a full documentation content (with lines breaks, opening tags,
+     | etc.) or an empty string to disable printing a documentation header.
+     |--------------------------------------------------------------------------
+     */
+    'phpHeaderDoc'             => '',
+
+    /*
+     |--------------------------------------------------------------------------
      | Options.
      |
      | This property is for generator's specific configurations. It might

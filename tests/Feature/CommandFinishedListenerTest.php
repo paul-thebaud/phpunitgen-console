@@ -469,7 +469,7 @@ class CommandFinishedListenerTest extends TestCase
         $this->assertSame(1, $this->commandFinishedListener->handle($event));
     }
 
-    public function runWithClassDataProvider(): array
+    public static function runWithClassDataProvider(): array
     {
         return [
             ['Broadcasting', 'channel'],

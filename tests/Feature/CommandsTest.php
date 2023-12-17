@@ -100,7 +100,7 @@ class CommandsTest extends TestCase
         $this->assertStringContainsString('Memory usage:', $output);
     }
 
-    public function commandsDataProvider(): array
+    public static function commandsDataProvider(): array
     {
         return [
             [RunCommand::class],

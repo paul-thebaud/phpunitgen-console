@@ -65,7 +65,7 @@ class TargetResolverTest extends TestCase
         $this->assertSame($expected, $this->targetResolver->resolve($classFactory, $sourcePath, $targetPath));
     }
 
-    public function targetResolverDataProvider(): array
+    public static function targetResolverDataProvider(): array
     {
         return [
             ['tests/Models/PostTest.php', '', 'john/app/Models/Post.php', 'tests'],

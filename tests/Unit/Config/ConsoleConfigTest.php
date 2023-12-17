@@ -44,6 +44,7 @@ class ConsoleConfigTest extends TestCase
                 'version',
             ],
             'phpDoc'                   => [],
+            'phpHeaderDoc'             => '',
             'options'                  => [
                 'context' => 'laravel',
             ],
@@ -73,6 +74,7 @@ class ConsoleConfigTest extends TestCase
             'excludedMethods'          => [],
             'mergedPhpDoc'             => [],
             'phpDoc'                   => ['@author John Doe'],
+            'phpHeaderDoc'             => '/* Some header */',
             'options'                  => ['custom' => 'option'],
         ], ConsoleConfig::make([
             'overwriteFiles'           => true,
@@ -95,6 +97,7 @@ class ConsoleConfigTest extends TestCase
             'excludedMethods'          => [],
             'mergedPhpDoc'             => [],
             'phpDoc'                   => ['@author John Doe'],
+            'phpHeaderDoc'             => '/* Some header */',
             'options'                  => ['custom' => 'option'],
         ])->toArray());
     }
@@ -122,6 +125,7 @@ class ConsoleConfigTest extends TestCase
             'excludedMethods'     => [],
             'mergedPhpDoc'        => [],
             'phpDoc'              => ['@author John Doe'],
+            'phpHeaderDoc'        => '/* Some header */',
             'options'             => ['custom' => 'option'],
         ]);
 
@@ -145,6 +149,7 @@ class ConsoleConfigTest extends TestCase
         $this->assertSame([], $config->excludedMethods());
         $this->assertSame([], $config->mergedPhpDoc());
         $this->assertSame(['@author John Doe'], $config->phpDoc());
+        $this->assertSame('/* Some header */', $config->phpHeaderDoc());
         $this->assertSame(['custom' => 'option'], $config->options());
         $this->assertSame('option', $config->getOption('custom'));
         $this->assertSame(null, $config->getOption('unknown'));

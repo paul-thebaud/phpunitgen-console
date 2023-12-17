@@ -11,4 +11,5 @@
 # Cache and coverage.
 /\.coverage/
 /\.phpunit\.result\.cache
+/\.phpunit\.cache/
 \.scannerwork/

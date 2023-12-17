@@ -32,6 +32,7 @@ class ConsoleConfig extends Config implements ConsoleConfigContract
         'excludedMethods'          => self::TYPE_ARRAY,
         'mergedPhpDoc'             => self::TYPE_ARRAY,
         'phpDoc'                   => self::TYPE_ARRAY,
+        'phpHeaderDoc'             => self::TYPE_STRING,
         'options'                  => self::TYPE_ARRAY,
         'overwriteFiles'           => self::TYPE_BOOL,
         'excludedFiles'            => self::TYPE_ARRAY,

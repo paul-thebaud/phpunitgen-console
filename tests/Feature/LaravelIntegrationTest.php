@@ -60,6 +60,14 @@ class LaravelIntegrationTest extends TestCase
     /**
      * {@inheritdoc}
      */
+    protected function defineEnvironment($app)
+    {
+        $app['env'] = 'local';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     protected function getPackageProviders($app)
     {
         return [

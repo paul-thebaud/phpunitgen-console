@@ -1,5 +1,15 @@
 # Change Log
 
+## 6.0.0
+
+**Added**
+
+- Add `phpHeaderDoc` option to generate a documentation block in generated file header.
+
+**Changed**
+
+- **BREAKING** Drop support for PHP 8.0.
+
 ## 5.0.0
 
 **Added**
