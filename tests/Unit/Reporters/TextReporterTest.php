@@ -64,7 +64,7 @@ class TextReporterTest extends TestCase
             ->with('PhpUnitGen ', false);
         $this->output->shouldReceive('write')
             ->once()
-            ->with('<fg=green>6.0.1</>', true);
+            ->with('<fg=green>6.1.0</>', true);
         $this->output->shouldReceive('write')
             ->once()
             ->with('', true);

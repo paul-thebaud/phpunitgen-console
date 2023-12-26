@@ -1,5 +1,11 @@
 # Change Log
 
+## 6.1.0
+
+**Added**
+
+- Add `php@8.3` support (closes #13).
+
 ## 6.0.1
 
 **Changed**
