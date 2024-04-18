@@ -9,6 +9,11 @@
 <a href="https://sonarcloud.io/dashboard?id=paul-thebaud_phpunitgen-console" target="_blank"><img src="https://sonarcloud.io/api/project_badges/measure?project=paul-thebaud_phpunitgen-console&metric=coverage" alt="Coverage"></a>
 </p>
 
+## :warning: PhpUnitGen end of life
+
+After 7 years of existence, PhpUnitGen is not maintained anymore.
+[Read the post](https://github.com/paul-thebaud/phpunitgen-core/issues/32)
+
 ## Installation
 
 The CLI tool can be installed using:
